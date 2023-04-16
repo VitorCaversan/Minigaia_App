@@ -10,6 +10,7 @@ import android.view.View;
 
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -17,32 +18,77 @@ import com.example.minigaia.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
-
+    private ListView          listView;
+    private ArrayList<String> listViewStrings = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        this.binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        this.appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+        NavigationUI.setupActionBarWithNavController(this, navController, this.appBarConfiguration);
 
-        binding.fab.setOnClickListener(new View.OnClickListener() {
+        this.listView = findViewById(R.id.listView);
+
+        this.listViewStrings.add("Régua 1");
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                                                          android.R.layout.simple_list_item_1,
+                                                          this.listViewStrings);
+
+        this.listView.setAdapter(adapter);
+
+        binding.addButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onClick(View view)
+            {
+                createNewRuler();
             }
         });
+    }
+
+    public void openActivity(View view)
+    {
+        int btnPos = this.listView.getPositionForView(view);
+
+        switch (btnPos)
+        {
+            case 0:
+//                NavHostFragment.findNavController(this)
+//                        .navigate(R.id.action_FirstFragment_to_SecondFragment);
+            break;
+
+            default:
+                // Nothing to be done
+            break;
+        }
+    }
+
+    /**
+     * Function called to create a new ruler whenever the add button is pressed
+     */
+    public void createNewRuler()
+    {
+        int newId = this.listViewStrings.size() + 1;
+        this.listViewStrings.add("Régua " + newId);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                                                          android.R.layout.simple_list_item_1,
+                                                          this.listViewStrings);
+        this.listView.setAdapter(adapter);
     }
 
     @Override
