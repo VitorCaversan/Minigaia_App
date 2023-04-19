@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/FirstFragment"
         android:name="com.example.minigaia.FirstFragment"
-        android:label="@string/first_fragment_label"
+        android:label="@string/registered_rulers_label"
         tools:layout="@layout/fragment_first">
 
         <action

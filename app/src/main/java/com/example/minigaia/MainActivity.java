@@ -18,8 +18,10 @@ import com.example.minigaia.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.content.Intent;
 
 import java.util.ArrayList;
 
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private ListView          listView;
     private ArrayList<String> listViewStrings = new ArrayList<>();
+    private ArrayList<Intent> activitiesList  = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,14 +45,32 @@ public class MainActivity extends AppCompatActivity {
         this.appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, this.appBarConfiguration);
 
+        /////////////// LIST VIEW ////////////////////////////
+
+        // Links the listView to the actual list on the screen
         this.listView = findViewById(R.id.listView);
 
+        // Adds the first string to the listView
         this.listViewStrings.add("Régua 1");
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                                                           android.R.layout.simple_list_item_1,
                                                           this.listViewStrings);
-
         this.listView.setAdapter(adapter);
+
+        // Creates the first activity to link with the listView
+        Intent firstIntent = new Intent(this, RulerActivity.class);
+        this.activitiesList.add(firstIntent);
+
+        ///////////////// BUTTONS FUNCTIONS ///////////////////
+
+        // Sets the function to be called when pressing buttons
+        this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+            {
+                openActivity(view);
+            }
+        });
 
         binding.addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,17 +85,9 @@ public class MainActivity extends AppCompatActivity {
     {
         int btnPos = this.listView.getPositionForView(view);
 
-        switch (btnPos)
-        {
-            case 0:
-//                NavHostFragment.findNavController(this)
-//                        .navigate(R.id.action_FirstFragment_to_SecondFragment);
-            break;
+        startActivity(this.activitiesList.get(btnPos));
 
-            default:
-                // Nothing to be done
-            break;
-        }
+        return;
     }
 
     /**
@@ -82,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void createNewRuler()
     {
+        // Creates a new string to be written in the listView
         int newId = this.listViewStrings.size() + 1;
         this.listViewStrings.add("Régua " + newId);
 
@@ -89,6 +103,12 @@ public class MainActivity extends AppCompatActivity {
                                                           android.R.layout.simple_list_item_1,
                                                           this.listViewStrings);
         this.listView.setAdapter(adapter);
+
+        // Creates the actual new screen
+        Intent intent = new Intent(this, RulerActivity.class);
+        this.activitiesList.add(intent);
+
+        return;
     }
 
     @Override
