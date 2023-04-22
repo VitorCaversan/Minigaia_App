@@ -16,16 +16,19 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.MiniGaia.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".RulerActivity"
             android:label="RulerActivity"
             android:theme="@style/Theme.MiniGaia.NoActionBar">
+        </activity>
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 
