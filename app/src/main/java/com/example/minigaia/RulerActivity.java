@@ -41,10 +41,10 @@ public class RulerActivity extends AppCompatActivity {
         TableRow row3 = new TableRow(this);
         this.tableLayout.addView(row3);
 
-        TextView actualPh = new TextView(this);
-        actualPh.setText("Nível Atual do Ph: " + sensorData.getPh());
-        actualPh.setTextSize(18);
-        row0.addView(actualPh);
+        TextView currentPh = new TextView(this);
+        currentPh.setText("Nível Atual do Ph: " + sensorData.getPh());
+        currentPh.setTextSize(18);
+        row0.addView(currentPh);
 
         TextView desiredPh = new TextView(this);
         desiredPh.setText("Nível Desejado de Ph:" + sensorData.getDesiredPh());
