@@ -14,6 +14,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class RulerActivity extends AppCompatActivity {
     private TableLayout tableLayout;
@@ -25,7 +27,7 @@ public class RulerActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
         // Replace the hardcoded JSON string with the actual data from your ESP32 sensor
-        String jsonString = "{\"ph\":7.2,\"desiredPh\":VaiMataTudoAsPranta,\"temperature\":25.3,\"date\":\"2023-04-21\"}";
+        String jsonString = "{\"ph\":7.2,\"desiredPh\":VaiMataTudo,\"temperature\":25.3,\"date\":\"2023-04-21\"}";
         SensorData sensorData = parseJsonData(jsonString);
         this.tableLayout = findViewById(R.id.rulerTableLayout);
         this.createTableContent(sensorData);
@@ -42,24 +44,40 @@ public class RulerActivity extends AppCompatActivity {
         this.tableLayout.addView(row3);
 
         TextView currentPh = new TextView(this);
-        currentPh.setText("Nível Atual do Ph: " + sensorData.getPh());
-        currentPh.setTextSize(18);
+        currentPh.setText("Nível Atual do Ph:");
+        currentPh.setTextSize(25);
         row0.addView(currentPh);
+        TextView currentPhValue = new TextView(this);
+        currentPhValue.setText(" " + sensorData.getPh());
+        currentPhValue.setTextSize(25);
+        row0.addView(currentPhValue);
 
         TextView desiredPh = new TextView(this);
-        desiredPh.setText("Nível Desejado de Ph:" + sensorData.getDesiredPh());
-        desiredPh.setTextSize(18);
+        desiredPh.setText("Nível Desejado de Ph:");
+        desiredPh.setTextSize(25);
         row1.addView(desiredPh);
+        TextView desiredPhValue = new TextView(this);
+        desiredPhValue.setText(" " + sensorData.getDesiredPh());
+        desiredPhValue.setTextSize(25);
+        row1.addView(desiredPhValue);
 
-        TextView text2 = new TextView(this);
-        text2.setText("Nível da água: " + sensorData.getTemperature());
-        text2.setTextSize(18);
-        row2.addView(text2);
+        TextView waterLvl = new TextView(this);
+        waterLvl.setText("Nível da água:");
+        waterLvl.setTextSize(25);
+        row2.addView(waterLvl);
+        TextView waterLvlValue = new TextView(this);
+        waterLvlValue.setText(" " + sensorData.getTemperature());
+        waterLvlValue.setTextSize(25);
+        row2.addView(waterLvlValue);
 
         TextView date = new TextView(this);
         date.setText("Date " + sensorData.getDate());
-        date.setTextSize(18);
+        date.setTextSize(25);
         row3.addView(date);
+        TextView dateValue = new TextView(this);
+        dateValue.setText(" " + sensorData.getDate());
+        dateValue.setTextSize(25);
+        row3.addView(dateValue);
     }
     private SensorData parseJsonData(String jsonString) {
         try {
@@ -86,6 +104,11 @@ public class RulerActivity extends AppCompatActivity {
             this.ph = ph;
             this.desiredPh = desiredPh;
             this.temperature = temperature;
+
+            // A HIGHER API LEVEL IS NEEDED TO USE THESE FUNCTIONS (26+)
+//            LocalDate currentDate = LocalDate.now();
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//            String dateString = currentDate.format(formatter);
             this.date = date;
         }
 
