@@ -2,15 +2,12 @@ package com.example.minigaia;
 
 import android.os.Bundle;
 
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -51,14 +48,14 @@ public class MainActivity extends AppCompatActivity {
         this.listView = findViewById(R.id.listView);
 
         // Adds the first string to the listView
-        this.listViewStrings.add("Régua 1");
+        this.listViewStrings.add("Reservatório 1");
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                                                           android.R.layout.simple_list_item_1,
                                                           this.listViewStrings);
         this.listView.setAdapter(adapter);
 
         // Creates the first activity to link with the listView
-        Intent firstIntent = new Intent(this, RulerActivity.class);
+        Intent firstIntent = new Intent(this, ReservatoryActivity.class);
         this.activitiesList.add(firstIntent);
 
         ///////////////// BUTTONS FUNCTIONS ///////////////////
@@ -97,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     {
         // Creates a new string to be written in the listView
         int newId = this.listViewStrings.size() + 1;
-        this.listViewStrings.add("Régua " + newId);
+        this.listViewStrings.add("Reservatório " + newId);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                                                           android.R.layout.simple_list_item_1,
@@ -105,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         this.listView.setAdapter(adapter);
 
         // Creates the actual new screen
-        Intent intent = new Intent(this, RulerActivity.class);
+        Intent intent = new Intent(this, ReservatoryActivity.class);
         this.activitiesList.add(intent);
 
         return;

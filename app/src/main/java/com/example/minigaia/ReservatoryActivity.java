@@ -1,36 +1,30 @@
 package com.example.minigaia;
 
 import android.os.Bundle;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
-public class RulerActivity extends AppCompatActivity {
+public class ReservatoryActivity extends AppCompatActivity {
     private TableLayout tableLayout;
+    public  SensorData  sensorData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ruler);
+        setContentView(R.layout.activity_reservatory);
         Toolbar toolbar = findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
         // Replace the hardcoded JSON string with the actual data from your ESP32 sensor
-        String jsonString = "{\"ph\":7.2,\"desiredPh\":VaiMataTudo,\"temperature\":25.3,\"date\":\"2023-04-21\"}";
-        SensorData sensorData = parseJsonData(jsonString);
+        String jsonString = "{\"ph\":7.2,\"desiredPh\":6.4,\"temperature\":25.3,\"waterLvl\":10.4,\"date\":\"2023-04-21\"}";
+        this.sensorData = parseJsonData(jsonString);
         this.tableLayout = findViewById(R.id.rulerTableLayout);
-        this.createTableContent(sensorData);
+        this.createTableContent(this.sensorData);
     }
 
     private void createTableContent(SensorData sensorData) {
@@ -82,12 +76,13 @@ public class RulerActivity extends AppCompatActivity {
     private SensorData parseJsonData(String jsonString) {
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
-            double ph = jsonObject.getDouble("ph");
-            String desiredPh = jsonObject.getString("desiredPh");
+            double ph          = jsonObject.getDouble("ph");
+            double desiredPh   = jsonObject.getDouble("desiredPh");
             double temperature = jsonObject.getDouble("temperature");
+            double waterLvl    = jsonObject.getDouble("waterLvl");
             String date = jsonObject.getString("date");
 
-            return new SensorData(ph, desiredPh, temperature, date);
+            return new SensorData(ph, desiredPh, temperature, waterLvl, date);
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -95,15 +90,16 @@ public class RulerActivity extends AppCompatActivity {
     }
     private static class SensorData {
         private final double ph;
-
-        private final String desiredPh;
+        private final double desiredPh;
         private final double temperature;
+        private final double waterLvl;
         private final String date;
 
-        public SensorData(double ph, String desiredPh, double temperature, String date) {
-            this.ph = ph;
-            this.desiredPh = desiredPh;
+        public SensorData(double ph, double desiredPh, double temperature, double waterLvl, String date) {
+            this.ph          = ph;
+            this.desiredPh   = desiredPh;
             this.temperature = temperature;
+            this.waterLvl    = waterLvl;
 
             // A HIGHER API LEVEL IS NEEDED TO USE THESE FUNCTIONS (26+)
 //            LocalDate currentDate = LocalDate.now();
@@ -116,7 +112,7 @@ public class RulerActivity extends AppCompatActivity {
             return ph;
         }
 
-        public String getDesiredPh() {
+        public double getDesiredPh() {
             return desiredPh;
         }
 
