@@ -16,23 +16,72 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="84dp"
-            android:background="?attr/colorPrimary"
+            android:background="@color/dark_green"
             app:popupTheme="@style/Theme.MiniGaia.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <include layout="@layout/content_main" />
 
+    <TableLayout
+        android:id="@+id/rulerTableLayout"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginTop="85dp"
+        android:stretchColumns="*"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"></TableLayout>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:backgroundTint="@android:color/holo_green_light"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="25dp"
+        android:tint="#000000"
+        app:backgroundTint="@color/dark_green"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_add" />
+        app:rippleColor="#000000"
+        app:srcCompat="@android:drawable/ic_popup_sync" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/timeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="170dp"
+        android:layout_marginBottom="25dp"
+        android:tint="#000000"
+        app:backgroundTint="@color/dark_green"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@android:drawable/ic_lock_idle_alarm" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bluetoothButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="330dp"
+        android:layout_marginBottom="25dp"
+        android:tint="#000000"
+        app:backgroundTint="@color/dark_green"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:rippleColor="#000000"
+        app:srcCompat="@android:drawable/stat_sys_data_bluetooth" />
+
+    <!-- Replace 'logo' with your actual logo file name
+    <ImageView
+        android:id="@+id/projectLogo"
+        android:layout_width="@dimen/logo_width"
+        android:layout_height="@dimen/logo_height"
+        android:layout_marginTop="16dp"
+        android:adjustViewBounds="true"
+        android:src="@drawable/logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" /> -->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

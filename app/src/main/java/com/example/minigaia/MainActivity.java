@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -15,20 +16,19 @@ import com.example.minigaia.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.content.Intent;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
-import java.util.ArrayList;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
-    private ListView          listView;
-    private ArrayList<String> listViewStrings = new ArrayList<>();
-    private ArrayList<Intent> activitiesList  = new ArrayList<>();
+    private TableLayout tableLayout;
+    public MainActivity.SensorData sensorData;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,30 +42,25 @@ public class MainActivity extends AppCompatActivity {
         this.appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, this.appBarConfiguration);
 
-        /////////////// LIST VIEW ////////////////////////////
-
-        // Links the listView to the actual list on the screen
-        this.listView = findViewById(R.id.listView);
-
-        // Adds the first string to the listView
-        this.listViewStrings.add("Reservatório 1");
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                                                          android.R.layout.simple_list_item_1,
-                                                          this.listViewStrings);
-        this.listView.setAdapter(adapter);
-
-        // Creates the first activity to link with the listView
-        Intent firstIntent = new Intent(this, ReservatoryActivity.class);
-        this.activitiesList.add(firstIntent);
+        // Replace the hardcoded JSON string with the actual data from your ESP32 sensor
+        String jsonString = "{\"ph\":7.2,\"desiredPh\":6.4,\"temperature\":25.3,\"waterLvl\":10.4,\"date\":\"2023-04-21\"}";
+        this.sensorData = parseJsonData(jsonString);
+        this.tableLayout = findViewById(R.id.rulerTableLayout);
+        this.createTableContent(this.sensorData);
 
         ///////////////// BUTTONS FUNCTIONS ///////////////////
 
-        // Sets the function to be called when pressing buttons
-        this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        binding.bluetoothButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
-            {
-                openActivity(view);
+            public void onClick(View view) {
+
+            }
+        });
+
+        binding.timeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
             }
         });
 
@@ -73,39 +68,71 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view)
             {
-                createNewRuler();
+
             }
         });
     }
 
-    public void openActivity(View view)
-    {
-        int btnPos = this.listView.getPositionForView(view);
+    private void createTableContent(MainActivity.SensorData sensorData) {
+        TableRow row0 = new TableRow(this);
+        this.tableLayout.addView(row0);
+        TableRow row1 = new TableRow(this);
+        this.tableLayout.addView(row1);
+        TableRow row2 = new TableRow(this);
+        this.tableLayout.addView(row2);
+        TableRow row3 = new TableRow(this);
+        this.tableLayout.addView(row3);
 
-        startActivity(this.activitiesList.get(btnPos));
+        TextView currentPh = new TextView(this);
+        currentPh.setText("Nível Atual do Ph:");
+        currentPh.setTextSize(25);
+        row0.addView(currentPh);
+        TextView currentPhValue = new TextView(this);
+        currentPhValue.setText(" " + sensorData.getPh());
+        currentPhValue.setTextSize(25);
+        row0.addView(currentPhValue);
 
-        return;
+        TextView desiredPh = new TextView(this);
+        desiredPh.setText("Nível Desejado de Ph:");
+        desiredPh.setTextSize(25);
+        row1.addView(desiredPh);
+        TextView desiredPhValue = new TextView(this);
+        desiredPhValue.setText(" " + sensorData.getDesiredPh());
+        desiredPhValue.setTextSize(25);
+        row1.addView(desiredPhValue);
+
+        TextView waterLvl = new TextView(this);
+        waterLvl.setText("Nível da água:");
+        waterLvl.setTextSize(25);
+        row2.addView(waterLvl);
+        TextView waterLvlValue = new TextView(this);
+        waterLvlValue.setText(" " + sensorData.getTemperature());
+        waterLvlValue.setTextSize(25);
+        row2.addView(waterLvlValue);
+
+        TextView date = new TextView(this);
+        date.setText("Date " + sensorData.getDate());
+        date.setTextSize(25);
+        row3.addView(date);
+        TextView dateValue = new TextView(this);
+        dateValue.setText(" " + sensorData.getDate());
+        dateValue.setTextSize(25);
+        row3.addView(dateValue);
     }
+    private MainActivity.SensorData parseJsonData(String jsonString) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            double ph          = jsonObject.getDouble("ph");
+            double desiredPh   = jsonObject.getDouble("desiredPh");
+            double temperature = jsonObject.getDouble("temperature");
+            double waterLvl    = jsonObject.getDouble("waterLvl");
+            String date = jsonObject.getString("date");
 
-    /**
-     * Function called to create a new ruler whenever the add button is pressed
-     */
-    public void createNewRuler()
-    {
-        // Creates a new string to be written in the listView
-        int newId = this.listViewStrings.size() + 1;
-        this.listViewStrings.add("Reservatório " + newId);
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                                                          android.R.layout.simple_list_item_1,
-                                                          this.listViewStrings);
-        this.listView.setAdapter(adapter);
-
-        // Creates the actual new screen
-        Intent intent = new Intent(this, ReservatoryActivity.class);
-        this.activitiesList.add(intent);
-
-        return;
+            return new MainActivity.SensorData(ph, desiredPh, temperature, waterLvl, date);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -135,5 +162,42 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    private static class SensorData {
+        private final double ph;
+        private final double desiredPh;
+        private final double temperature;
+        private final double waterLvl;
+        private final String date;
+
+        public SensorData(double ph, double desiredPh, double temperature, double waterLvl, String date) {
+            this.ph          = ph;
+            this.desiredPh   = desiredPh;
+            this.temperature = temperature;
+            this.waterLvl    = waterLvl;
+
+            // A HIGHER API LEVEL IS NEEDED TO USE THESE FUNCTIONS (26+)
+//            LocalDate currentDate = LocalDate.now();
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//            String dateString = currentDate.format(formatter);
+            this.date = date;
+        }
+
+        public double getPh() {
+            return ph;
+        }
+
+        public double getDesiredPh() {
+            return desiredPh;
+        }
+
+        public double getTemperature() {
+            return temperature;
+        }
+
+        public String getDate() {
+            return date;
+        }
     }
 }

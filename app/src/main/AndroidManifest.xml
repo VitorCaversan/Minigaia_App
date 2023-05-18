@@ -18,7 +18,7 @@
             android:theme="@style/Theme.MiniGaia.NoActionBar">
         </activity>
         <activity
-            android:name=".ReservatoryActivity"
+            android:name=".TimesActivity"
             android:label="RulerActivity"
             android:theme="@style/Theme.MiniGaia.NoActionBar">
         </activity>
