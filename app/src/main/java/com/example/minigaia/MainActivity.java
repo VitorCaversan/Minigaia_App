@@ -33,6 +33,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.Timer;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,7 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private TableLayout tableLayout;
     public Intent timeIntent;
-    public MainActivity.SensorData sensorData;
+    public SensorData sensorData;
+    public BluetoothActivity bluetoothActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,17 +54,20 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
+        // Replace the hardcoded JSON string with the actual data from your ESP32 sensor
+        String jsonString = "{\"ph\":7.2,\"desiredPh\":6.4,\"temperature\":25.3,\"waterLvl\":10.4,\"humidity\":\"67.9\"}";
+        this.sensorData = parseJsonData(jsonString);
+        this.tableLayout = findViewById(R.id.rulerTableLayout);
+        this.createTableContent(this.sensorData);
+
+        this.bluetoothActivity = new BluetoothActivity(sensorData);
+
         ///////////////// THIS CAME WITH THE TEMPLATE (??) ///////////////////
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         this.appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, this.appBarConfiguration);
 
-        // Replace the hardcoded JSON string with the actual data from your ESP32 sensor
-        String jsonString = "{\"ph\":7.2,\"desiredPh\":6.4,\"temperature\":25.3,\"waterLvl\":10.4,\"humidity\":\"67.9\"}";
-        this.sensorData = parseJsonData(jsonString);
-        this.tableLayout = findViewById(R.id.rulerTableLayout);
-        this.createTableContent(this.sensorData);
 
         ///////////////// INTENTS USED IN BUTTONS ///////////////////
 
@@ -73,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         binding.bluetoothButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                
+
             }
         });
 
@@ -88,7 +93,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view)
             {
-
+                try
+                {
+                    bluetoothActivity.syncToConnectedDevice();
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
@@ -99,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void createTableContent(MainActivity.SensorData sensorData) {
+    private void createTableContent(SensorData sensorData) {
         TableRow row0 = new TableRow(this);
         this.tableLayout.addView(row0);
         TableRow row1 = new TableRow(this);
@@ -145,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         temperatureValue.setTextSize(25);
         row3.addView(temperatureValue);
     }
-    private MainActivity.SensorData parseJsonData(String jsonString) {
+    private SensorData parseJsonData(String jsonString) {
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
             double ph          = jsonObject.getDouble("ph");
@@ -154,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
             double waterLvl    = jsonObject.getDouble("waterLvl");
             double humidity     = jsonObject.getDouble("humidity");
 
-            return new MainActivity.SensorData(ph, desiredPh, temperature, waterLvl, humidity);
+            return new SensorData(ph, desiredPh, temperature, waterLvl, humidity);
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -195,70 +207,22 @@ public class MainActivity extends AppCompatActivity {
     {
         super.onSaveInstanceState(outState);
 
-        outState.putDouble("ph", this.sensorData.ph);
-        outState.putDouble("desiredPh", this.sensorData.desiredPh);
-        outState.putDouble("temperature", this.sensorData.temperature);
-        outState.putDouble("humidity", this.sensorData.humidity);
-        outState.putDouble("waterLvl", this.sensorData.waterLvl);
+        outState.putDouble("ph", this.sensorData.getPh());
+        outState.putDouble("desiredPh", this.sensorData.getDesiredPh());
+        outState.putDouble("temperature", this.sensorData.getTemperature());
+        outState.putDouble("humidity", this.sensorData.getHumidity());
+        outState.putDouble("waterLvl", this.sensorData.getWaterLvl());
     }
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedState)
     {
         super.onRestoreInstanceState(savedState);
 
-        this.sensorData.ph          = savedState.getDouble("ph");
-        this.sensorData.desiredPh   = savedState.getDouble("desiredPh");
-        this.sensorData.temperature = savedState.getDouble("temperature");
-        this.sensorData.humidity    = savedState.getDouble("humidity");
-        this.sensorData.waterLvl    = savedState.getDouble("waterLvl");
+        this.sensorData.setPh(savedState.getDouble("ph"));
+        this.sensorData.setDesiredPh(savedState.getDouble("desiredPh"));
+        this.sensorData.setTemperature(savedState.getDouble("temperature"));
+        this.sensorData.setHumidity(savedState.getDouble("humidity"));
+        this.sensorData.setWaterLvl(savedState.getDouble("waterLvl"));
     }
 
-    private static class SensorData {
-        private double ph;
-        private double desiredPh;
-        private double temperature;
-        private double humidity;
-        private double waterLvl;
-        private String date;
-
-        public SensorData(double ph, double desiredPh, double temperature, double waterLvl, double humidity) {
-            this.ph          = ph;
-            this.desiredPh   = desiredPh;
-            this.temperature = temperature;
-            this.waterLvl    = waterLvl;
-            this.humidity    = humidity;
-
-            // A HIGHER API LEVEL IS NEEDED TO USE THESE FUNCTIONS (26+)
-//            LocalDate currentDate = LocalDate.now();
-//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//            String dateString = currentDate.format(formatter);
-            this.date = "10/06/2000";
-        }
-
-        public double getPh() {
-            return ph;
-        }
-
-        public double getDesiredPh() {
-            return desiredPh;
-        }
-
-        public double getTemperature() {
-            return temperature;
-        }
-
-        public double getWaterLvl()
-        {
-            return this.waterLvl;
-        }
-
-        public double gethumidity()
-        {
-            return this.humidity;
-        }
-
-        public String getDate() {
-            return date;
-        }
-    }
 }
