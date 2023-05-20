@@ -7,6 +7,9 @@
     <string name="reservoir_data">Dados do reservatório</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="sync_btn_string">Update micro-controller with new changes</string>
+    <string name="time_btn_string">Go to th pH probe scheduler</string>
+    <string name="bluetooth_btn_string">Connect to your micro-controller via bluetooth</string>
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>

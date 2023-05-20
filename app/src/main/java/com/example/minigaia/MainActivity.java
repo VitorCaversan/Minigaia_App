@@ -1,12 +1,21 @@
 package com.example.minigaia;
 
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -19,16 +28,26 @@ import android.view.MenuItem;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Timer;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     private TableLayout tableLayout;
+    public Intent timeIntent;
     public MainActivity.SensorData sensorData;
+
+    ///// Bluetooth variables /////
+    public BluetoothAdapter bluetoothAdapter;
+    private ActivityResultLauncher<Intent> enableBluetoothLauncher;
+    private static final int REQUEST_BLUETOOTH_PERMISSION = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,33 +57,53 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
+        ///////////////// THIS CAME WITH THE TEMPLATE (??) ///////////////////
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         this.appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, this.appBarConfiguration);
 
         // Replace the hardcoded JSON string with the actual data from your ESP32 sensor
-        String jsonString = "{\"ph\":7.2,\"desiredPh\":6.4,\"temperature\":25.3,\"waterLvl\":10.4,\"date\":\"2023-04-21\"}";
+        String jsonString = "{\"ph\":7.2,\"desiredPh\":6.4,\"temperature\":25.3,\"waterLvl\":10.4,\"humidity\":\"67.9\"}";
         this.sensorData = parseJsonData(jsonString);
         this.tableLayout = findViewById(R.id.rulerTableLayout);
         this.createTableContent(this.sensorData);
+
+        ///////////////// INTENTS USED IN BUTTONS ///////////////////
+
+        this.timeIntent = new Intent(this, TimesActivity.class);
+
+        this.enableBluetoothLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+        result -> {
+            if (result.getResultCode() == Activity.RESULT_OK)
+            {
+                // Bluetooth was enabled successfully
+                // Continue with your Bluetooth operations
+            }
+            else
+            {
+                // Bluetooth was not enabled
+                // Handle the case when Bluetooth is not enabled
+            }
+        });
 
         ///////////////// BUTTONS FUNCTIONS ///////////////////
 
         binding.bluetoothButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                startBluetoothActivity(view);
             }
         });
 
         binding.timeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                openTimeActivity(view);
             }
         });
 
-        binding.addButton.setOnClickListener(new View.OnClickListener() {
+        binding.syncButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
@@ -72,6 +111,73 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void openTimeActivity(View view)
+    {
+        startActivity(this.timeIntent);
+    }
+    public void startBluetoothActivity(View view)
+    {
+        this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (null == bluetoothAdapter)
+        {
+            Toast.makeText(this, "Bluetooth is not supported on this device", Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            if (false == bluetoothAdapter.isEnabled())
+            {
+                Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                this.enableBluetoothLauncher.launch(enableBluetoothIntent);
+            }
+
+            // Bluetooth is available and enabled
+            if (true == bluetoothAdapter.isEnabled())
+            {
+                if (ContextCompat.checkSelfPermission(this,
+                                                      "android.permission.ACCESS_FINE_LOCATION") !=
+                    PackageManager.PERMISSION_GRANTED)
+                {
+                    // Permission is not granted, request it
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{"android.permission.ACCESS_FINE_LOCATION"},
+                            REQUEST_BLUETOOTH_PERMISSION);
+                }
+                else
+                {
+                    startBluetoothDiscovery();
+                }
+            }
+        }
+    }
+
+    private void startBluetoothDiscovery() {
+        if (this.bluetoothAdapter.isDiscovering()) {
+            // Bluetooth discovery is already in progress, cancel it first
+            this.bluetoothAdapter.cancelDiscovery();
+        }
+        // Start Bluetooth discovery
+        this.bluetoothAdapter.startDiscovery();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_BLUETOOTH_PERMISSION)
+        {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                // Permission is granted, proceed with Bluetooth functionality
+                startBluetoothDiscovery();
+            }
+            else
+            {
+                // Permission is denied, handle the case accordingly
+            }
+        }
+    }
+
 
     private void createTableContent(MainActivity.SensorData sensorData) {
         TableRow row0 = new TableRow(this);
@@ -110,14 +216,14 @@ public class MainActivity extends AppCompatActivity {
         waterLvlValue.setTextSize(25);
         row2.addView(waterLvlValue);
 
-        TextView date = new TextView(this);
-        date.setText("Date " + sensorData.getDate());
-        date.setTextSize(25);
-        row3.addView(date);
-        TextView dateValue = new TextView(this);
-        dateValue.setText(" " + sensorData.getDate());
-        dateValue.setTextSize(25);
-        row3.addView(dateValue);
+        TextView temperature = new TextView(this);
+        temperature.setText("Date " + sensorData.getTemperature());
+        temperature.setTextSize(25);
+        row3.addView(temperature);
+        TextView temperatureValue = new TextView(this);
+        temperatureValue.setText(" " + sensorData.getTemperature());
+        temperatureValue.setTextSize(25);
+        row3.addView(temperatureValue);
     }
     private MainActivity.SensorData parseJsonData(String jsonString) {
         try {
@@ -126,9 +232,9 @@ public class MainActivity extends AppCompatActivity {
             double desiredPh   = jsonObject.getDouble("desiredPh");
             double temperature = jsonObject.getDouble("temperature");
             double waterLvl    = jsonObject.getDouble("waterLvl");
-            String date = jsonObject.getString("date");
+            double humidity     = jsonObject.getDouble("humidity");
 
-            return new MainActivity.SensorData(ph, desiredPh, temperature, waterLvl, date);
+            return new MainActivity.SensorData(ph, desiredPh, temperature, waterLvl, humidity);
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -164,24 +270,49 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    private static class SensorData {
-        private final double ph;
-        private final double desiredPh;
-        private final double temperature;
-        private final double waterLvl;
-        private final String date;
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
 
-        public SensorData(double ph, double desiredPh, double temperature, double waterLvl, String date) {
+        outState.putDouble("ph", this.sensorData.ph);
+        outState.putDouble("desiredPh", this.sensorData.desiredPh);
+        outState.putDouble("temperature", this.sensorData.temperature);
+        outState.putDouble("humidity", this.sensorData.humidity);
+        outState.putDouble("waterLvl", this.sensorData.waterLvl);
+    }
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedState)
+    {
+        super.onRestoreInstanceState(savedState);
+
+        this.sensorData.ph          = savedState.getDouble("ph");
+        this.sensorData.desiredPh   = savedState.getDouble("desiredPh");
+        this.sensorData.temperature = savedState.getDouble("temperature");
+        this.sensorData.humidity    = savedState.getDouble("humidity");
+        this.sensorData.waterLvl    = savedState.getDouble("waterLvl");
+    }
+
+    private static class SensorData {
+        private double ph;
+        private double desiredPh;
+        private double temperature;
+        private double humidity;
+        private double waterLvl;
+        private String date;
+
+        public SensorData(double ph, double desiredPh, double temperature, double waterLvl, double humidity) {
             this.ph          = ph;
             this.desiredPh   = desiredPh;
             this.temperature = temperature;
             this.waterLvl    = waterLvl;
+            this.humidity    = humidity;
 
             // A HIGHER API LEVEL IS NEEDED TO USE THESE FUNCTIONS (26+)
 //            LocalDate currentDate = LocalDate.now();
 //            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 //            String dateString = currentDate.format(formatter);
-            this.date = date;
+            this.date = "10/06/2000";
         }
 
         public double getPh() {
@@ -194,6 +325,16 @@ public class MainActivity extends AppCompatActivity {
 
         public double getTemperature() {
             return temperature;
+        }
+
+        public double getWaterLvl()
+        {
+            return this.waterLvl;
+        }
+
+        public double gethumidity()
+        {
+            return this.humidity;
         }
 
         public String getDate() {
