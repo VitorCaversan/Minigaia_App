@@ -20,6 +20,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import okhttp3.ResponseBody;
 
 import com.example.minigaia.databinding.ActivityMainBinding;
 
@@ -35,7 +36,12 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Timer;
-
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.GET;
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
@@ -44,16 +50,30 @@ public class MainActivity extends AppCompatActivity {
     public Intent timeIntent;
     public SensorData sensorData;
     public BluetoothActivity bluetoothActivity;
+    // Declare Retrofit as a class field
+    private Retrofit retrofit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         this.binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
 
+        //Setting base URL
+        retrofit = new Retrofit.Builder()
+                .baseUrl("http://192.168.15.99") // Your ESP32 IP address
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        //Calling the two functions for the same button
+        binding.webServerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getResponseFromESP();
+                toggleLED();
+            }
+        });
         // Replace the hardcoded JSON string with the actual data from your ESP32 sensor
         String jsonString = "{\"ph\":7.2,\"desiredPh\":6.4,\"temperature\":25.3,\"waterLvl\":10.4,\"humidity\":\"67.9\"}";
         this.sensorData = parseJsonData(jsonString);
@@ -109,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
     {
         startActivity(this.timeIntent);
     }
-
 
     private void createTableContent(SensorData sensorData) {
         TableRow row0 = new TableRow(this);
@@ -224,5 +243,61 @@ public class MainActivity extends AppCompatActivity {
         this.sensorData.setHumidity(savedState.getDouble("humidity"));
         this.sensorData.setWaterLvl(savedState.getDouble("waterLvl"));
     }
+    //Receive HelloWorld
+    public void getResponseFromESP() {
+        ESP32Service service = retrofit.create(ESP32Service.class);
+        Call<ResponseBody> call = service.getValue();
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    if(response.isSuccessful()) {
+                        String responseBodyString = response.body().string();
+                        Toast.makeText(MainActivity.this, responseBodyString, Toast.LENGTH_LONG).show();
+                    } else {
+                        // Handle the error here
+                        Toast.makeText(MainActivity.this, "Error: " + response.errorBody(), Toast.LENGTH_LONG).show();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 
+    //Verifica respostas
+    public interface ESP32Service {
+        @GET("/")
+        Call<ResponseBody> getValue();
+
+        @GET("/led")
+        Call<ResponseBody> toggleLED();
+    }
+
+    public void toggleLED() {
+        ESP32Service service = retrofit.create(ESP32Service.class);
+        Call<ResponseBody> call = service.toggleLED();
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                // Handle the response here
+                if(response.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, "LED state toggled", Toast.LENGTH_LONG).show();
+                } else {
+                    // Handle the error here
+                    Toast.makeText(MainActivity.this, "Error toggling LED state", Toast.LENGTH_LONG).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 }
+
