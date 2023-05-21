@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
         binding.desiredPhBtn.setText(Double.toString(this.sensorData.getDesiredPh()));
         binding.humidityBtn.setText(Double.toString(this.sensorData.getHumidity()) + " %");
         //binding.temperatureButton.setText(Double.toString(this.sensorData.getTemperature()) + " ºC");
+        updateTemperature();
         binding.waterLvlBtn.setText(Double.toString(this.sensorData.getWaterLvl()) + " L");
 
         ///////////////// THIS CAME WITH THE TEMPLATE (??) ///////////////////
