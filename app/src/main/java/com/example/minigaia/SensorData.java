@@ -9,7 +9,7 @@ public class SensorData {
     private String temperature;
     private String humidity;
     private String waterLvl;
-    private String measureTime;
+    private String earlyMeasureTime;
     private String date;
 
     public SensorData(String ph, String desiredPh, String temperature, String waterLvl, String humidity)
@@ -19,7 +19,7 @@ public class SensorData {
         this.temperature = temperature;
         this.waterLvl    = waterLvl;
         this.humidity    = humidity;
-        this.measureTime = "07:00";
+        this.earlyMeasureTime = "07:00";
 
         // A HIGH API LEVEL IS NEEDED TO USE THESE FUNCTIONS (26+)
         try {
@@ -59,13 +59,13 @@ public class SensorData {
     }
     public void   setHumidity(String humidity) {this.humidity = humidity;}
 
-    public String getMeasureTime()
+    public String getearlyMeasureTime()
     {
-        return measureTime;
+        return earlyMeasureTime;
     }
-    public void setMeasureTime(String measureTime)
+    public void setearlyMeasureTime(String earlyMeasureTime)
     {
-        this.measureTime = measureTime;
+        this.earlyMeasureTime = earlyMeasureTime;
     }
     public String getDate() {
         return date;

@@ -57,13 +57,11 @@ public class MainActivity extends AppCompatActivity {
     public BluetoothActivity bluetoothActivity;
     // Declare Retrofit as a class field
     private Retrofit retrofit;
-    private TextView temperatureTextView; // Declare the TextView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        temperatureTextView = findViewById(R.id.temperature);
         setSupportActionBar(binding.toolbar);
 
         //Setting base URL
@@ -136,7 +134,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void openTimeActivity(View view)
     {
-        this.timeIntent.putExtra("measureTime", this.sensorData.getMeasureTime());
+        // Puts extra values in a buffer to be read when initializing the target activity
+        this.timeIntent.putExtra("earlyMeasureTime", this.sensorData.getearlyMeasureTime());
         int requestCode = 1;
 
         startActivityForResult(this.timeIntent, requestCode);
@@ -202,14 +201,13 @@ public class MainActivity extends AppCompatActivity {
             // Check if the result is RESULT_OK
             if (resultCode == Activity.RESULT_OK)
             {
-                String resultData = returnIntent.getStringExtra("measureTime");
+                String resultData = returnIntent.getStringExtra("earlyMeasureTime");
 
-                this.sensorData.setMeasureTime(resultData);
+                this.sensorData.setearlyMeasureTime(resultData);
             }
             else
             {
                 // Handle the case where the result is not RESULT_OK
-                // ...
             }
         }
     }
@@ -275,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
             String desiredPh   = jsonObject.getString("desiredPh");
             String temperature = jsonObject.getString("temperature");
             String waterLvl    = jsonObject.getString("waterLvl");
-            String humidity     = jsonObject.getString("humidity");
+            String humidity    = jsonObject.getString("humidity");
 
             return new SensorData(ph, desiredPh, temperature, waterLvl, humidity);
         } catch (JSONException e) {
@@ -335,7 +333,6 @@ public class MainActivity extends AppCompatActivity {
                         String temperature = response.body().string();
                         // Update your temperature TextView here
                         sensorData.setTemperature(temperature);
-                        binding.temperatureButton.setText(temperature + "ºC");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -349,6 +346,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        binding.temperatureButton.setText(this.sensorData.getTemperature() + "ºC");
     }
     public void toggleLED() {
         ESP32Service service = retrofit.create(ESP32Service.class);

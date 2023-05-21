@@ -3,17 +3,25 @@ package com.example.minigaia;
 import com.example.minigaia.databinding.ActivityTimesBinding;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 
 public class TimesActivity extends AppCompatActivity {
+    static final int DAYTIME   = 0;
+    static final int NIGHTTIME = 1;
 
     private ActivityTimesBinding binding;
-    private String measureTime;
+    private String earlyMeasureTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,31 +33,26 @@ public class TimesActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (null != intent)
         {
-            this.measureTime = (String)intent.getStringExtra("measureTime");
+            this.earlyMeasureTime = (String)intent.getStringExtra("earlyMeasureTime");
         }
 
-        binding.dayButton.setText(this.measureTime);
+        binding.dayButton.setText(this.earlyMeasureTime);
         // Adds 12h to the later button
-        String nightString = (String)this.measureTime;
-        int hour = Integer.parseInt(nightString.substring(0,2));
-        hour = (hour + 12) % 24;
-        String auxString = nightString.substring(2,5);
-        nightString = Integer.toString(hour) + auxString;
-        binding.nightButton.setText(nightString);
+        binding.nightButton.setText(setNextTime(this.earlyMeasureTime, NIGHTTIME));
 
         binding.dayButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
-
+            public void onClick(View v) {
+                createTextInput(DAYTIME);
             }
         });
+
 
         binding.nightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
-
+                createTextInput(NIGHTTIME);
             }
         });
 
@@ -66,12 +69,100 @@ public class TimesActivity extends AppCompatActivity {
             public void onClick(View view)
             {
                 Intent mainActivityIntent = new Intent();
-                mainActivityIntent.putExtra("measureTime", measureTime);
+                mainActivityIntent.putExtra("earlyMeasureTime", earlyMeasureTime);
                 setResult(Activity.RESULT_OK, mainActivityIntent);
                 finish();
             }
         });
     }
 
+    private void createTextInput(int currentTimeType)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TimesActivity.this);
+        builder.setTitle("Enter hour on HH:MM template");
+
+        // Sets up the input
+        final EditText input = new EditText(TimesActivity.this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        // Sets up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String enteredText = input.getText().toString();
+
+                if (enteredText.length() < 5)
+                {
+                    Toast.makeText(TimesActivity.this, "Formato errado",
+                                    Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                try
+                {
+                    int hour = Integer.parseInt(enteredText.substring(0,2));
+                    int min  = Integer.parseInt(enteredText.substring(3,enteredText.length()));
+
+                    if ((hour < 0) || (hour > 24) || (min < 0) || (min > 60))
+                    {
+                        Toast.makeText(TimesActivity.this, "Valores excedem o limite",
+                                       Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                catch (NumberFormatException nE)
+                {
+                    Toast.makeText(TimesActivity.this, "Formato errado",
+                                    Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (DAYTIME == currentTimeType)
+                {
+                    earlyMeasureTime = enteredText;
+                    binding.dayButton.setText(earlyMeasureTime);
+                    binding.nightButton.setText(setNextTime(enteredText, NIGHTTIME));
+                }
+                else
+                {
+                    binding.nightButton.setText(enteredText);
+                    earlyMeasureTime = setNextTime(enteredText, DAYTIME);
+                    binding.dayButton.setText(earlyMeasureTime);
+                }
+            }
+        });
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    private String setNextTime(String currentTime, int nextTimeType)
+    {
+        String nextTime = currentTime;
+        long hour = Long.parseLong(nextTime.substring(0,2));
+
+        if (NIGHTTIME == nextTimeType)
+        {
+            hour = (hour + 12) % 24;
+        }
+        else
+        {
+            hour = (hour - 12);
+            hour = hour & 0xFFFFFFFFL; // Makes it an unsigned value
+            hour = hour % 24;
+        }
+
+        int stringSize = currentTime.length();
+        String auxString = nextTime.substring(2,stringSize);
+        nextTime = Long.toString(hour) + auxString;
+
+        return  nextTime;
+    }
 
 }
