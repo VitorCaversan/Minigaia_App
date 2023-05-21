@@ -4,15 +4,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class SensorData {
-    private double ph;
-    private double desiredPh;
-    private double temperature;
-    private double humidity;
-    private double waterLvl;
+    private String ph;
+    private String desiredPh;
+    private String temperature;
+    private String humidity;
+    private String waterLvl;
     private String measureTime;
     private String date;
 
-    public SensorData(double ph, double desiredPh, double temperature, double waterLvl, double humidity)
+    public SensorData(String ph, String desiredPh, String temperature, String waterLvl, String humidity)
     {
         this.ph          = ph;
         this.desiredPh   = desiredPh;
@@ -32,32 +32,32 @@ public class SensorData {
         }
     }
 
-    public double getPh() {
+    public String getPh() {
         return ph;
     }
-    public void   setPh(double ph) {this.ph = ph;}
+    public void   setPh(String ph) {this.ph = ph;}
 
-    public double getDesiredPh() {
+    public String getDesiredPh() {
         return desiredPh;
     }
-    public void   setDesiredPh(double desiredPh) {this.desiredPh = desiredPh;}
+    public void   setDesiredPh(String desiredPh) {this.desiredPh = desiredPh;}
 
-    public double getTemperature() {
+    public String getTemperature() {
         return temperature;
     }
-    public void   setTemperature(double temperature) {this.temperature = temperature;}
+    public void   setTemperature(String temperature) {this.temperature = temperature;}
 
-    public double getWaterLvl()
+    public String getWaterLvl()
     {
         return this.waterLvl;
     }
-    public void   setWaterLvl(double waterLvl) {this.waterLvl = waterLvl;}
+    public void   setWaterLvl(String waterLvl) {this.waterLvl = waterLvl;}
 
-    public double getHumidity()
+    public String getHumidity()
     {
         return this.humidity;
     }
-    public void   setHumidity(double humidity) {this.humidity = humidity;}
+    public void   setHumidity(String humidity) {this.humidity = humidity;}
 
     public String getMeasureTime()
     {

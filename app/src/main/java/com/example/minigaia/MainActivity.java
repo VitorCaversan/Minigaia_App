@@ -85,12 +85,12 @@ public class MainActivity extends AppCompatActivity {
         this.createTableContent(this.sensorData);
 
         // Sets initial text for the buttons
-        binding.phButton.setText(Double.toString(this.sensorData.getPh()));
-        binding.desiredPhBtn.setText(Double.toString(this.sensorData.getDesiredPh()));
-        binding.humidityBtn.setText(Double.toString(this.sensorData.getHumidity()) + " %");
-        //binding.temperatureButton.setText(Double.toString(this.sensorData.getTemperature()) + " ºC");
+        binding.phButton.setText(this.sensorData.getPh());
+        binding.desiredPhBtn.setText(this.sensorData.getDesiredPh());
+        binding.humidityBtn.setText(this.sensorData.getHumidity() + " %");
+        //binding.temperatureButton.setText(this.sensorData.getTemperature()) + " ºC");
         updateTemperature();
-        binding.waterLvlBtn.setText(Double.toString(this.sensorData.getWaterLvl()) + " L");
+        binding.waterLvlBtn.setText(this.sensorData.getWaterLvl() + " L");
 
         ///////////////// THIS CAME WITH THE TEMPLATE (??) ///////////////////
 
@@ -137,8 +137,83 @@ public class MainActivity extends AppCompatActivity {
     public void openTimeActivity(View view)
     {
         this.timeIntent.putExtra("measureTime", this.sensorData.getMeasureTime());
-        startActivity(this.timeIntent);
+        int requestCode = 1;
+
+        startActivityForResult(this.timeIntent, requestCode);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        return NavigationUI.navigateUp(navController, appBarConfiguration)
+                || super.onSupportNavigateUp();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+
+        outState.putString("ph", this.sensorData.getPh());
+        outState.putString("desiredPh", this.sensorData.getDesiredPh());
+        outState.putString("temperature", this.sensorData.getTemperature());
+        outState.putString("humidity", this.sensorData.getHumidity());
+        outState.putString("waterLvl", this.sensorData.getWaterLvl());
+    }
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedState)
+    {
+        super.onRestoreInstanceState(savedState);
+        this.sensorData.setPh(savedState.getString("ph"));
+        this.sensorData.setDesiredPh(savedState.getString("desiredPh"));
+        this.sensorData.setTemperature(savedState.getString("temperature"));
+        this.sensorData.setHumidity(savedState.getString("humidity"));
+        this.sensorData.setWaterLvl(savedState.getString("waterLvl"));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
+        super.onActivityResult(requestCode, resultCode, returnIntent);
+
+        // If the request code is the one from TimeActivity
+        if (requestCode == 1)
+        {
+            // Check if the result is RESULT_OK
+            if (resultCode == Activity.RESULT_OK)
+            {
+                String resultData = returnIntent.getStringExtra("measureTime");
+
+                this.sensorData.setMeasureTime(resultData);
+            }
+            else
+            {
+                // Handle the case where the result is not RESULT_OK
+                // ...
+            }
+        }
+    }
+
 
     /**
      * Sets default values for a table layout in this context
@@ -196,11 +271,11 @@ public class MainActivity extends AppCompatActivity {
     private SensorData parseJsonData(String jsonString) {
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
-            double ph          = jsonObject.getDouble("ph");
-            double desiredPh   = jsonObject.getDouble("desiredPh");
-            double temperature = jsonObject.getDouble("temperature");
-            double waterLvl    = jsonObject.getDouble("waterLvl");
-            double humidity     = jsonObject.getDouble("humidity");
+            String ph          = jsonObject.getString("ph");
+            String desiredPh   = jsonObject.getString("desiredPh");
+            String temperature = jsonObject.getString("temperature");
+            String waterLvl    = jsonObject.getString("waterLvl");
+            String humidity     = jsonObject.getString("humidity");
 
             return new SensorData(ph, desiredPh, temperature, waterLvl, humidity);
         } catch (JSONException e) {
@@ -208,55 +283,7 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
-    }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState)
-    {
-        super.onSaveInstanceState(outState);
-
-        outState.putDouble("ph", this.sensorData.getPh());
-        outState.putDouble("desiredPh", this.sensorData.getDesiredPh());
-        outState.putDouble("temperature", this.sensorData.getTemperature());
-        outState.putDouble("humidity", this.sensorData.getHumidity());
-        outState.putDouble("waterLvl", this.sensorData.getWaterLvl());
-    }
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedState)
-    {
-        super.onRestoreInstanceState(savedState);
-        this.sensorData.setPh(savedState.getDouble("ph"));
-        this.sensorData.setDesiredPh(savedState.getDouble("desiredPh"));
-        this.sensorData.setTemperature(savedState.getDouble("temperature"));
-        this.sensorData.setHumidity(savedState.getDouble("humidity"));
-        this.sensorData.setWaterLvl(savedState.getDouble("waterLvl"));
-    }
     //Receive HelloWorld
     public void getResponseFromESP() {
         ESP32Service service = retrofit.create(ESP32Service.class);
@@ -267,10 +294,10 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     if(response.isSuccessful()) {
                         String responseBodyString = response.body().string();
-                        Toast.makeText(MainActivity.this, responseBodyString, Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, responseBodyString, Toast.LENGTH_SHORT).show();
                     } else {
                         // Handle the error here
-                        Toast.makeText(MainActivity.this, "Error: " + response.errorBody(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "Error: " + response.errorBody(), Toast.LENGTH_SHORT).show();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -279,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 sendCurrentTime();
-                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -307,19 +334,19 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         String temperature = response.body().string();
                         // Update your temperature TextView here
-                        //temperatureTextView.setText("Temperature: " + temperature);
+                        sensorData.setTemperature(temperature);
                         binding.temperatureButton.setText(temperature + "ºC");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    Toast.makeText(MainActivity.this, "Error getting temperature", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Error getting temperature", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -332,15 +359,15 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 // Handle the response here
                 if(response.isSuccessful()) {
-                    Toast.makeText(MainActivity.this, "LED state toggled", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "LED state toggled", Toast.LENGTH_SHORT).show();
                 } else {
                     // Handle the error here
-                    Toast.makeText(MainActivity.this, "Error toggling LED state", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Error toggling LED state", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -358,15 +385,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if(response.isSuccessful()) {
-                    Toast.makeText(MainActivity.this, "Time updated successfully", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Time updated successfully", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(MainActivity.this, "Error setting time", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Error setting time", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

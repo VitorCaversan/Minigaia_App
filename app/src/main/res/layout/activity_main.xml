@@ -34,12 +34,13 @@
 
     <Button
         android:id="@+id/phButton"
-        android:layout_width="140dp"
+        android:layout_width="0dp"
         android:layout_height="140dp"
         android:layout_marginTop="115dp"
         android:backgroundTint="@color/dark_green"
         android:text="Button"
         android:textSize="25dp"
+        app:layout_constraintWidth_percent="0.4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.12"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,12 +48,13 @@
 
     <Button
         android:id="@+id/desiredPhBtn"
-        android:layout_width="140dp"
+        android:layout_width="0dp"
         android:layout_height="140dp"
         android:layout_marginTop="115dp"
         android:backgroundTint="@color/yellow"
         android:text="Button"
         android:textSize="25dp"
+        app:layout_constraintWidth_percent="0.4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.88"
         app:layout_constraintStart_toStartOf="parent"
@@ -60,12 +62,13 @@
 
     <Button
         android:id="@+id/humidityBtn"
-        android:layout_width="140dp"
+        android:layout_width="0dp"
         android:layout_height="140dp"
         android:layout_marginTop="5dp"
         android:backgroundTint="@color/light_blue"
         android:text="Button"
         android:textSize="25dp"
+        app:layout_constraintWidth_percent="0.4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.12"
         app:layout_constraintStart_toStartOf="parent"
@@ -73,12 +76,13 @@
 
     <Button
         android:id="@+id/temperatureButton"
-        android:layout_width="140dp"
+        android:layout_width="0dp"
         android:layout_height="140dp"
         android:layout_marginTop="5dp"
         android:backgroundTint="@color/orange"
         android:text="Button"
         android:textSize="25dp"
+        app:layout_constraintWidth_percent="0.4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.88"
         app:layout_constraintStart_toStartOf="parent"
@@ -86,12 +90,13 @@
 
     <Button
         android:id="@+id/waterLvlBtn"
-        android:layout_width="140dp"
+        android:layout_width="0dp"
         android:layout_height="140dp"
         android:layout_marginTop="5dp"
         android:backgroundTint="@color/light_blue"
         android:text="Button"
         android:textSize="25dp"
+        app:layout_constraintWidth_percent="0.8"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/humidityBtn" />

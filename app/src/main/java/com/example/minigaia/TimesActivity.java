@@ -2,6 +2,7 @@ package com.example.minigaia;
 
 import com.example.minigaia.databinding.ActivityTimesBinding;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -64,7 +65,9 @@ public class TimesActivity extends AppCompatActivity {
             @Override
             public void onClick(View view)
             {
-                // setResult(); // Use this if wanting to return a value for startActivityForResult()
+                Intent mainActivityIntent = new Intent();
+                mainActivityIntent.putExtra("measureTime", measureTime);
+                setResult(Activity.RESULT_OK, mainActivityIntent);
                 finish();
             }
         });
