@@ -142,6 +142,28 @@
         app:srcCompat="@android:drawable/stat_sys_data_bluetooth"
         app:tint="@color/orange" />
 
+    <Button
+        android:id="@+id/webServer_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="64dp"
+        android:text="Send Web Server Request"
+        app:layout_constraintBottom_toTopOf="@+id/timeButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="64dp"
+        android:text="Temperature:"
+        app:layout_constraintBottom_toTopOf="@+id/webServer_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <!-- Replace 'logo' with your actual logo file name
     <ImageView
         android:id="@+id/projectLogo"
