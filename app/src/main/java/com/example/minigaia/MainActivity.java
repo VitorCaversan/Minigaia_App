@@ -34,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Timer;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,9 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     private TableLayout tableLayout;
-    public Intent timeIntent;
+    public Intent timeIntent, bluetoothIntent;
     public SensorData sensorData;
-    public BluetoothActivity bluetoothActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
         this.tableLayout = findViewById(R.id.rulerTableLayout);
         this.createTableContent(this.sensorData);
 
-        this.bluetoothActivity = new BluetoothActivity(sensorData);
 
         ///////////////// THIS CAME WITH THE TEMPLATE (??) ///////////////////
 
@@ -71,14 +70,15 @@ public class MainActivity extends AppCompatActivity {
 
         ///////////////// INTENTS USED IN BUTTONS ///////////////////
 
-        this.timeIntent = new Intent(this, TimesActivity.class);
+        this.timeIntent      = new Intent(this, TimesActivity.class);
 
         ///////////////// BUTTONS FUNCTIONS ///////////////////
 
         binding.bluetoothButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-
+            public void onClick(View view)
+            {
+                openBtActivity();
             }
         });
 
@@ -93,21 +93,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view)
             {
-                try
-                {
-                    bluetoothActivity.syncToConnectedDevice();
-                }
-                catch (IOException e)
-                {
-                    throw new RuntimeException(e);
-                }
+
             }
         });
     }
 
-    public void openTimeActivity(View view)
+    private void openTimeActivity(View view)
     {
         startActivity(this.timeIntent);
+    }
+    private void openBtActivity()
+    {
+//        this.bluetoothIntent.putExtra("sensorData", (Serializable)this.sensorData);
+        this.bluetoothIntent = new Intent(this, BluetoothActivity.class);
+        startActivity(this.bluetoothIntent);
     }
 
 

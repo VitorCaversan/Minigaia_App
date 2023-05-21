@@ -23,6 +23,11 @@ public class SensorData {
         this.date = "10/06/2000";
     }
 
+    public String getValuesAsString()
+    {
+        return (Double.toString(this.desiredPh) + this.date);
+    }
+
     public double getPh() {
         return ph;
     }
