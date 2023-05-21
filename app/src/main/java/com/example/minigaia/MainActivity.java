@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         binding.phButton.setText(Double.toString(this.sensorData.getPh()));
         binding.desiredPhBtn.setText(Double.toString(this.sensorData.getDesiredPh()));
         binding.humidityBtn.setText(Double.toString(this.sensorData.getHumidity()) + " %");
-        binding.temperatureButton.setText(Double.toString(this.sensorData.getTemperature()) + " ºC");
+        //binding.temperatureButton.setText(Double.toString(this.sensorData.getTemperature()) + " ºC");
         binding.waterLvlBtn.setText(Double.toString(this.sensorData.getWaterLvl()) + " L");
 
         ///////////////// THIS CAME WITH THE TEMPLATE (??) ///////////////////
@@ -121,11 +121,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view)
             {
-
                 try
                 {
                     updateTemperature();
-
                 }
                 catch (Exception e)
                 {
@@ -252,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(@NonNull Bundle savedState)
     {
         super.onRestoreInstanceState(savedState);
-
         this.sensorData.setPh(savedState.getDouble("ph"));
         this.sensorData.setDesiredPh(savedState.getDouble("desiredPh"));
         this.sensorData.setTemperature(savedState.getDouble("temperature"));
@@ -309,7 +306,8 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         String temperature = response.body().string();
                         // Update your temperature TextView here
-                        temperatureTextView.setText("Temperature: " + temperature);
+                        //temperatureTextView.setText("Temperature: " + temperature);
+                        binding.temperatureButton.setText(temperature + "ºC");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
