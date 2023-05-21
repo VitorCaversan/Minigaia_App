@@ -11,6 +11,7 @@
         android:layout_width="300dp"
         android:layout_height="165dp"
         android:text="Button"
+        android:textSize="40dp"
         app:backgroundTint="@color/light_blue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -23,6 +24,7 @@
         android:layout_width="300dp"
         android:layout_height="165dp"
         android:text="Button2"
+        android:textSize="40dp"
         app:backgroundTint="@color/dark_gray"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -30,4 +32,36 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dayButton"
         app:layout_constraintVertical_bias="0.337" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/syncButtonTimes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="35dp"
+        android:contentDescription="@string/sync_btn_string"
+        android:tint="#000000"
+        app:backgroundTint="@color/dark_green"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintStart_toStartOf="parent"
+        app:rippleColor="#000000"
+        app:srcCompat="@android:drawable/ic_popup_sync"
+        app:tint="@color/orange"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/homeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="35dp"
+        android:contentDescription="@string/home_btn_string"
+        android:tint="#000000"
+        app:backgroundTint="@color/dark_green"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:rippleColor="#000000"
+        app:srcCompat="?attr/homeAsUpIndicator"
+        app:tint="@color/orange"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

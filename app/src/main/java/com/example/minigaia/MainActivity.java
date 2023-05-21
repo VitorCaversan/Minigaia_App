@@ -40,10 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
-    private TableLayout tableLayout;
     public Intent timeIntent;
     public SensorData sensorData;
-    public BluetoothActivity bluetoothActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +55,14 @@ public class MainActivity extends AppCompatActivity {
         // Replace the hardcoded JSON string with the actual data from your ESP32 sensor
         String jsonString = "{\"ph\":7.2,\"desiredPh\":6.4,\"temperature\":25.3,\"waterLvl\":10.4,\"humidity\":\"67.9\"}";
         this.sensorData = parseJsonData(jsonString);
-        this.tableLayout = findViewById(R.id.rulerTableLayout);
         this.createTableContent(this.sensorData);
 
-        this.bluetoothActivity = new BluetoothActivity(sensorData);
+        // Sets initial text for the buttons
+        binding.phButton.setText(Double.toString(this.sensorData.getPh()));
+        binding.desiredPhBtn.setText(Double.toString(this.sensorData.getDesiredPh()));
+        binding.humidityBtn.setText(Double.toString(this.sensorData.getHumidity()) + " %");
+        binding.temperatureButton.setText(Double.toString(this.sensorData.getTemperature()) + " ºC");
+        binding.waterLvlBtn.setText(Double.toString(this.sensorData.getWaterLvl()) + " L");
 
         ///////////////// THIS CAME WITH THE TEMPLATE (??) ///////////////////
 
@@ -93,33 +95,33 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view)
             {
-                try
-                {
-                    bluetoothActivity.syncToConnectedDevice();
-                }
-                catch (IOException e)
-                {
-                    throw new RuntimeException(e);
-                }
+
             }
         });
     }
 
     public void openTimeActivity(View view)
     {
+        this.timeIntent.putExtra("measureTime", this.sensorData.getMeasureTime());
         startActivity(this.timeIntent);
     }
 
-
+    /**
+     * Sets default values for a table layout in this context
+     *
+     * @param sensorData Class that contains various data from sensors and system
+     */
     private void createTableContent(SensorData sensorData) {
+        // Change to a table layout from this context if you want to use this function
+        TableLayout tableLayout = new TableLayout(this);
         TableRow row0 = new TableRow(this);
-        this.tableLayout.addView(row0);
+        tableLayout.addView(row0);
         TableRow row1 = new TableRow(this);
-        this.tableLayout.addView(row1);
+        tableLayout.addView(row1);
         TableRow row2 = new TableRow(this);
-        this.tableLayout.addView(row2);
+        tableLayout.addView(row2);
         TableRow row3 = new TableRow(this);
-        this.tableLayout.addView(row3);
+        tableLayout.addView(row3);
 
         TextView currentPh = new TextView(this);
         currentPh.setText("Nível Atual do Ph:");

@@ -1,11 +1,15 @@
 package com.example.minigaia;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 public class SensorData {
     private double ph;
     private double desiredPh;
     private double temperature;
     private double humidity;
     private double waterLvl;
+    private String measureTime;
     private String date;
 
     public SensorData(double ph, double desiredPh, double temperature, double waterLvl, double humidity)
@@ -15,12 +19,17 @@ public class SensorData {
         this.temperature = temperature;
         this.waterLvl    = waterLvl;
         this.humidity    = humidity;
+        this.measureTime = "07:00";
 
-        // A HIGHER API LEVEL IS NEEDED TO USE THESE FUNCTIONS (26+)
-//            LocalDate currentDate = LocalDate.now();
-//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//            String dateString = currentDate.format(formatter);
-        this.date = "10/06/2000";
+        // A HIGH API LEVEL IS NEEDED TO USE THESE FUNCTIONS (26+)
+        try {
+            long currentTimeMillis = System.currentTimeMillis();
+            this.date = Long.toString((currentTimeMillis / 1000));
+        }
+        catch (Exception e)
+        {
+            this.date = "10/06/2000";
+        }
     }
 
     public double getPh() {
@@ -50,6 +59,14 @@ public class SensorData {
     }
     public void   setHumidity(double humidity) {this.humidity = humidity;}
 
+    public String getMeasureTime()
+    {
+        return measureTime;
+    }
+    public void setMeasureTime(String measureTime)
+    {
+        this.measureTime = measureTime;
+    }
     public String getDate() {
         return date;
     }
