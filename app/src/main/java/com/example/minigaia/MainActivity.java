@@ -103,6 +103,23 @@ public class MainActivity extends AppCompatActivity {
         this.timeIntent = new Intent(this, TimesActivity.class);
 
         ///////////////// BUTTONS FUNCTIONS ///////////////////
+
+        binding.syncButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                try
+                {
+                    updateSensorData();
+                    updateButtonsText();
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
         binding.bluetoothButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -114,21 +131,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 openTimeActivity(view);
-            }
-        });
-
-        binding.syncButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-                try
-                {
-                    updateTemperature();
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
             }
         });
 
@@ -408,10 +410,62 @@ public class MainActivity extends AppCompatActivity {
         Call<ResponseBody> getTemperature();
         @GET("/led")
         Call<ResponseBody> toggleLED();
+        @GET("/sync")
+        Call<ResponseBody> getMeasures();
         @FormUrlEncoded
         @POST("/time")
         Call<ResponseBody> setTime(@Field("time") String time);
     }
+
+    public void updateSensorData() {
+        ESP32Service service = retrofit.create(ESP32Service.class);
+        Call<ResponseBody> call = service.getMeasures();
+        sendCurrentTime();
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseString = response.body().string();
+
+                        parseResponseString(responseString);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Toast.makeText(MainActivity.this, "Error updating measures", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        updateButtonsText();
+    }
+
+    private void parseResponseString(String responseString)
+    {
+        String sensorValues;
+
+        try
+        {
+            sensorValues = responseString.substring(0,5);
+            this.sensorData.setPh(sensorValues);
+            sensorValues = responseString.substring(5,10);
+            this.sensorData.setHumidity(sensorValues);
+            sensorValues = responseString.substring(10,15);
+            this.sensorData.setTemperature(sensorValues);
+            sensorValues = responseString.substring(15,20);
+            this.sensorData.setWaterLvl(sensorValues);
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(MainActivity.this, "Sync failed", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
     public void updateTemperature() {
         ESP32Service service = retrofit.create(ESP32Service.class);
         Call<ResponseBody> call = service.getTemperature();
