@@ -79,7 +79,7 @@ public class TimesActivity extends AppCompatActivity {
     private void createTextInput(int currentTimeType)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(TimesActivity.this);
-        builder.setTitle("Enter hour on HH:MM template");
+        builder.setTitle("Horário no template HH:MM:");
 
         // Sets up the input
         final EditText input = new EditText(TimesActivity.this);
@@ -92,44 +92,7 @@ public class TimesActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 String enteredText = input.getText().toString();
 
-                if (enteredText.length() < 5)
-                {
-                    Toast.makeText(TimesActivity.this, "Formato errado",
-                                    Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                try
-                {
-                    int hour = Integer.parseInt(enteredText.substring(0,2));
-                    int min  = Integer.parseInt(enteredText.substring(3,enteredText.length()));
-
-                    if ((hour < 0) || (hour > 24) || (min < 0) || (min > 60))
-                    {
-                        Toast.makeText(TimesActivity.this, "Valores excedem o limite",
-                                       Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                }
-                catch (NumberFormatException nE)
-                {
-                    Toast.makeText(TimesActivity.this, "Formato errado",
-                                    Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (DAYTIME == currentTimeType)
-                {
-                    earlyMeasureTime = enteredText;
-                    binding.dayButton.setText(earlyMeasureTime);
-                    binding.nightButton.setText(setNextTime(enteredText, NIGHTTIME));
-                }
-                else
-                {
-                    binding.nightButton.setText(enteredText);
-                    earlyMeasureTime = setNextTime(enteredText, DAYTIME);
-                    binding.dayButton.setText(earlyMeasureTime);
-                }
+                treatEnteredText(enteredText, currentTimeType);
             }
         });
         builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
@@ -140,6 +103,48 @@ public class TimesActivity extends AppCompatActivity {
         });
 
         builder.show();
+    }
+
+    private void treatEnteredText(String enteredText, int currentTimeType)
+    {
+        if (enteredText.length() < 5)
+        {
+            Toast.makeText(TimesActivity.this, "Formato errado",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try
+        {
+            int hour = Integer.parseInt(enteredText.substring(0,2));
+            int min  = Integer.parseInt(enteredText.substring(3,enteredText.length()));
+
+            if ((hour < 0) || (hour > 24) || (min < 0) || (min > 60))
+            {
+                Toast.makeText(TimesActivity.this, "Valores excedem o limite",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+        catch (NumberFormatException nE)
+        {
+            Toast.makeText(TimesActivity.this, "Formato errado",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (DAYTIME == currentTimeType)
+        {
+            this.earlyMeasureTime = enteredText;
+            this.binding.dayButton.setText(this.earlyMeasureTime);
+            this.binding.nightButton.setText(setNextTime(enteredText, NIGHTTIME));
+        }
+        else
+        {
+            this.binding.nightButton.setText(enteredText);
+            this.earlyMeasureTime = setNextTime(enteredText, DAYTIME);
+            this.binding.dayButton.setText(this.earlyMeasureTime);
+        }
     }
 
     private String setNextTime(String currentTime, int nextTimeType)
@@ -160,9 +165,17 @@ public class TimesActivity extends AppCompatActivity {
 
         int stringSize = currentTime.length();
         String auxString = nextTime.substring(2,stringSize);
-        nextTime = Long.toString(hour) + auxString;
 
-        return  nextTime;
+        if (hour < 10)
+        {
+            nextTime = "0" + Long.toString(hour) + auxString;
+        }
+        else
+        {
+            nextTime = Long.toString(hour) + auxString;
+        }
+
+        return nextTime;
     }
 
 }

@@ -88,12 +88,8 @@ public class MainActivity extends AppCompatActivity {
         this.createTableContent(this.sensorData);
 
         // Sets initial text for the buttons
-        binding.phButton.setText(this.sensorData.getPh());
-        binding.desiredPhBtn.setText(this.sensorData.getDesiredPh());
-        binding.humidityBtn.setText(this.sensorData.getHumidity() + " %");
-        //binding.temperatureButton.setText(this.sensorData.getTemperature()) + " ºC");
+        updateButtonsText();
         updateTemperature();
-        binding.waterLvlBtn.setText(this.sensorData.getWaterLvl() + " L");
 
         ///////////////// THIS CAME WITH THE TEMPLATE (??) ///////////////////
 
@@ -142,82 +138,6 @@ public class MainActivity extends AppCompatActivity {
                 createTextInput(DESIRED_PH_BTN);
             }
         });
-    }
-
-    private void createTextInput(int pressedBtn)
-    {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Your desired pH value:");
-
-        // Sets up the input
-        final EditText input = new EditText(MainActivity.this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        // Sets up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String enteredText = input.getText().toString();
-
-                switch (pressedBtn)
-                {
-                    case DESIRED_PH_BTN:
-                    {
-                        treatDesiredPhBtn(enteredText);
-                    }
-                    break;
-                    // Other buttons
-                }
-            }
-        });
-        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-    }
-
-    public void openTimeActivity(View view)
-    {
-        // Puts extra values in a buffer to be read when initializing the target activity
-        this.timeIntent.putExtra("earlyMeasureTime", this.sensorData.getearlyMeasureTime());
-        int requestCode = 1;
-
-        startActivityForResult(this.timeIntent, requestCode);
-    }
-
-    private void treatDesiredPhBtn(String enteredText)
-    {
-        try
-        {
-            double value = Double.parseDouble(enteredText);
-
-            if ((value < 0) || (value > 14))
-            {
-                Toast.makeText(MainActivity.this, "Valor fora dos limites 0 < pH < 14",
-                        Toast.LENGTH_SHORT).show();
-            }
-            else
-            {
-                this.sensorData.setDesiredPh(enteredText);
-                binding.desiredPhBtn.setText(enteredText);
-
-                if ((value < 5) || (value > 9))
-                {
-                    Toast.makeText(MainActivity.this, "É recomendável um valor entre 5 e 9",
-                            Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-        catch (NumberFormatException nF)
-        {
-            Toast.makeText(MainActivity.this, "Formato errado",
-                    Toast.LENGTH_SHORT).show();
-        }
     }
 
     @Override
@@ -291,6 +211,98 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void createTextInput(int pressedBtn)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Your desired pH value:");
+
+        // Sets up the input
+        final EditText input = new EditText(MainActivity.this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        // Sets up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String enteredText = input.getText().toString();
+
+                switch (pressedBtn)
+                {
+                    case DESIRED_PH_BTN:
+                    {
+                        treatDesiredPhBtn(enteredText);
+                    }
+                    break;
+                    // Other buttons
+                }
+            }
+        });
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    public void openTimeActivity(View view)
+    {
+        // Puts extra values in a buffer to be read when initializing the target activity
+        this.timeIntent.putExtra("earlyMeasureTime", this.sensorData.getearlyMeasureTime());
+        int requestCode = 1;
+
+        startActivityForResult(this.timeIntent, requestCode);
+    }
+
+    private void treatDesiredPhBtn(String enteredText)
+    {
+        try
+        {
+            double value = Double.parseDouble(enteredText);
+
+            if ((value < 0) || (value > 14))
+            {
+                Toast.makeText(MainActivity.this, "Valor fora dos limites 0 < pH < 14",
+                        Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                this.sensorData.setDesiredPh(enteredText);
+                updateButtonsText();
+
+                if ((value < 5) || (value > 9))
+                {
+                    Toast.makeText(MainActivity.this, "É recomendável um valor entre 5 e 9",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+        catch (NumberFormatException nF)
+        {
+            Toast.makeText(MainActivity.this, "Formato errado",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Function that updates all the screen button with the values of sensorData
+     */
+    private void updateButtonsText()
+    {
+        String auxString = getString(R.string.pH) + "\n" + this.sensorData.getPh();
+        binding.phButton.setText(auxString);
+        auxString = getString(R.string.desired_pH) + "\n" + this.sensorData.getDesiredPh();
+        binding.desiredPhBtn.setText(auxString);
+        auxString = getString(R.string.humidity) + "\n" + this.sensorData.getHumidity() + " %";
+        binding.humidityBtn.setText(auxString);
+        auxString = getString(R.string.temperature) + "\n" + this.sensorData.getTemperature() + " ºC";
+        binding.temperatureButton.setText(auxString);
+        auxString = getString(R.string.water_lvl) + "\n" + this.sensorData.getWaterLvl() + " L";
+        binding.waterLvlBtn.setText(auxString);
+    }
 
     /**
      * Sets default values for a table layout in this context
@@ -426,7 +438,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        binding.temperatureButton.setText(this.sensorData.getTemperature() + "ºC");
+        updateButtonsText();
     }
     public void toggleLED() {
         ESP32Service service = retrofit.create(ESP32Service.class);

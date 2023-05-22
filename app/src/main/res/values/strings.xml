@@ -11,6 +11,11 @@
     <string name="time_btn_string">Go to th pH probe scheduler</string>
     <string name="bluetooth_btn_string">Connect to your micro-controller via bluetooth</string>
     <string name="home_btn_string">Get back to the starting screen</string>
+    <string name="pH">pH:</string>
+    <string name="desired_pH">pH desejado:</string>
+    <string name="humidity">Umidade:</string>
+    <string name="temperature">Temperatura:</string>
+    <string name="water_lvl">Nível de água:</string>
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
