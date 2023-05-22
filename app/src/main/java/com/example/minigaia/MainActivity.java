@@ -2,6 +2,7 @@ package com.example.minigaia;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -9,8 +10,10 @@ import android.os.Bundle;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.text.InputType;
 import android.view.View;
 
 import androidx.appcompat.widget.Toolbar;
@@ -26,6 +29,7 @@ import com.example.minigaia.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -50,6 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
+    static final int DESIRED_PH_BTN = 0;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     public Intent timeIntent;
@@ -130,6 +135,50 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        binding.desiredPhBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createTextInput(DESIRED_PH_BTN);
+            }
+        });
+    }
+
+    private void createTextInput(int pressedBtn)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Your desired pH value:");
+
+        // Sets up the input
+        final EditText input = new EditText(MainActivity.this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        // Sets up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String enteredText = input.getText().toString();
+
+                switch (pressedBtn)
+                {
+                    case DESIRED_PH_BTN:
+                    {
+                        treatDesiredPhBtn(enteredText);
+                    }
+                    break;
+                    // Other buttons
+                }
+            }
+        });
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 
     public void openTimeActivity(View view)
@@ -139,6 +188,36 @@ public class MainActivity extends AppCompatActivity {
         int requestCode = 1;
 
         startActivityForResult(this.timeIntent, requestCode);
+    }
+
+    private void treatDesiredPhBtn(String enteredText)
+    {
+        try
+        {
+            double value = Double.parseDouble(enteredText);
+
+            if ((value < 0) || (value > 14))
+            {
+                Toast.makeText(MainActivity.this, "Valor fora dos limites 0 < pH < 14",
+                        Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                this.sensorData.setDesiredPh(enteredText);
+                binding.desiredPhBtn.setText(enteredText);
+
+                if ((value < 5) || (value > 9))
+                {
+                    Toast.makeText(MainActivity.this, "É recomendável um valor entre 5 e 9",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+        catch (NumberFormatException nF)
+        {
+            Toast.makeText(MainActivity.this, "Formato errado",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -328,7 +407,7 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(response.isSuccessful()) {
+                if (response.isSuccessful()) {
                     try {
                         String temperature = response.body().string();
                         // Update your temperature TextView here
