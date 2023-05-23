@@ -56,14 +56,6 @@ public class TimesActivity extends AppCompatActivity {
             }
         });
 
-        binding.syncButtonTimes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-
-            }
-        });
-
         binding.homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)

@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/minigaia_bg">
 
 
     <Button
@@ -11,8 +12,9 @@
         android:layout_width="300dp"
         android:layout_height="165dp"
         android:text="Button"
+        android:textColor="@color/black"
         android:textSize="40dp"
-        app:backgroundTint="@color/light_blue"
+        app:backgroundTint="@color/minigaia_yellow"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,44 +26,41 @@
         android:layout_width="300dp"
         android:layout_height="165dp"
         android:text="Button2"
+        android:textColor="@color/black"
         android:textSize="40dp"
-        app:backgroundTint="@color/dark_gray"
+        app:backgroundTint="@color/minigaia_pink"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dayButton"
-        app:layout_constraintVertical_bias="0.337" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/syncButtonTimes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="35dp"
-        android:contentDescription="@string/sync_btn_string"
-        android:tint="#000000"
-        app:backgroundTint="@color/dark_green"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.85"
-        app:layout_constraintStart_toStartOf="parent"
-        app:rippleColor="#000000"
-        app:srcCompat="@android:drawable/ic_popup_sync"
-        app:tint="@color/orange"/>
+        app:layout_constraintVertical_bias="0.653" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/homeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="35dp"
+        android:layout_marginBottom="28dp"
         android:contentDescription="@string/home_btn_string"
         android:tint="#000000"
-        app:backgroundTint="@color/dark_green"
+        app:backgroundTint="@color/minigaia_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:rippleColor="#000000"
+        app:rippleColor="@color/minigaia_onClick"
         app:srcCompat="?attr/homeAsUpIndicator"
-        app:tint="@color/orange"/>
+        app:tint="@color/black" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="103dp"
+        android:layout_height="67dp"
+        android:layout_marginTop="28dp"
+        app:layout_constraintBottom_toTopOf="@+id/nightButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dayButton"
+        app:layout_constraintVertical_bias="0.38"
+        app:srcCompat="@drawable/clock" />
 </androidx.constraintlayout.widget.ConstraintLayout>
