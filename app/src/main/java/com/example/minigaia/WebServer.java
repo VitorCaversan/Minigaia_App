@@ -20,6 +20,9 @@ import retrofit2.http.POST;
 
 public class WebServer
 {
+    static final long HOUR_IN_SEC = 3600;
+    static final long MIN_IN_SEC  = 60;
+
     private Retrofit retrofit;
 
     android.content.Context mainActivityContext;
@@ -41,7 +44,7 @@ public class WebServer
         @GET("/led")
         Call<ResponseBody> toggleLED();
         @GET("/sync")
-        Call<ResponseBody> getMeasures();
+        Call<ResponseBody> getMeasurements();
         @FormUrlEncoded
         @POST("/time")
         Call<ResponseBody> setTime(@Field("time") String time);
@@ -50,59 +53,36 @@ public class WebServer
         @POST("/ESPget")
         Call<ResponseBody> sendData(@Field("time")          String time,
                                     @Field("target_pH")     String targetPh,
-                                    @Field("scheduledTime") String measureTime);
+                                    @Field("scheduledTime") String measureTime,
+                                    @Field("measureNow")    String measureNow);
     }
 
     /**
-     * Makes a request and gets
+     * The base to request and receive data from a web server
      */
-    public void getResponseFromESP() {
+    public SensorData updateSensorData(SensorData mainSensData, boolean measureNow) {
         ESP32Service service = retrofit.create(ESP32Service.class);
-        Call<ResponseBody> call = service.getValue();
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    if(response.isSuccessful()) {
-                        String responseBodyString = response.body().string();
-                        Toast.makeText(mainActivityContext, responseBodyString, Toast.LENGTH_SHORT).show();
-                    } else {
-                        // Handle the error here
-                        Toast.makeText(mainActivityContext, "Error: " + response.errorBody(), Toast.LENGTH_SHORT).show();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                sendCurrentTime();
-                Toast.makeText(mainActivityContext, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    public SensorData updateSensorData(String desiredPh) {
-        ESP32Service service = retrofit.create(ESP32Service.class);
-        Call<ResponseBody> call = service.getMeasures();
-        sendCurrentTime();
+        Call<ResponseBody> call = service.getMeasurements();
+        sendSyncData(mainSensData, measureNow);
 
         //  It has to be an array, otherwise it can't be accessed by the following functions
-        SensorData[] sensorData = {new SensorData("0", desiredPh, "0", "0", "0")};
+        SensorData[] sensorData = {new SensorData("0", mainSensData.getDesiredPh(), "0", "0", "0")};
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful())
+                {
                     try {
                         String responseString = response.body().string();
 
-                        sensorData[0] = parseResponseString(responseString, desiredPh);
+                        sensorData[0] = parseResponseString(responseString, mainSensData.getDesiredPh());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    Toast.makeText(mainActivityContext, "Data updated successfully", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(mainActivityContext, "Error updating measures", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mainActivityContext, "Error updating data", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
@@ -114,9 +94,49 @@ public class WebServer
         return sensorData[0];
     }
 
+    /**
+     * The base to data to a web server
+     *
+     * @param sensorData Sensor data to be used and later return the correct values
+     */
+    private void sendSyncData(SensorData sensorData, boolean measureNow)
+    {
+        long currentTimeMillis = System.currentTimeMillis();
+
+        String measureTime = sensorData.getearlyMeasureTime();
+        int hour = Integer.parseInt(measureTime.substring(0,2));
+        int min  = Integer.parseInt(measureTime.substring(3,measureTime.length()));
+
+        long schedTimeInSec = (hour * HOUR_IN_SEC) + (min + HOUR_IN_SEC);
+
+        // Create the service
+        ESP32Service service = retrofit.create(ESP32Service.class);
+
+        // Makes the call
+        Call<ResponseBody> call = service.sendData(Long.toString(currentTimeMillis/1000),
+                                                   sensorData.getDesiredPh(),
+                                                   Long.toString(schedTimeInSec),
+                                                   Boolean.toString(measureNow));
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.isSuccessful()) {
+                    Toast.makeText(mainActivityContext, "Data sent successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(mainActivityContext, "Error sending data", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(mainActivityContext, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     public SensorData parseResponseString(String responseString, String desiredPh)
     {
-        String sensorValues;
         SensorData sensorData = new SensorData("0", desiredPh,"0","0","0");
 
         try

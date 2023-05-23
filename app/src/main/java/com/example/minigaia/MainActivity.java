@@ -1,10 +1,8 @@
 package com.example.minigaia;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -16,43 +14,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.View;
 
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import okhttp3.ResponseBody;
 
 import com.example.minigaia.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.Objects;
-import java.util.Timer;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.FormUrlEncoded;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Field;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     static final int DESIRED_PH_BTN = 0;
@@ -97,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 try
                 {
-                    SensorData newSensData = webServer.updateSensorData(sensorData.getDesiredPh());
+                    SensorData newSensData = webServer.updateSensorData(sensorData, false);
                     if (!Objects.equals(newSensData.getPh(), "0"))
                     {
                         sensorData = newSensData;
@@ -113,10 +90,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        binding.bluetoothButton.setOnClickListener(new View.OnClickListener() {
+        binding.measureNowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SensorData newSensData = webServer.updateSensorData(sensorData, true);
+                if (!Objects.equals(newSensData.getPh(), "0"))
+                {
+                    sensorData = newSensData;
+                }
 
+                updateButtonsText();
             }
         });
 
