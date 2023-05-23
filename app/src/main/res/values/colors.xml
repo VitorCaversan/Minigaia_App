@@ -12,4 +12,14 @@
     <color name="dark_gray">#4B5C6B</color>
     <color name="yellow">#F7C325</color>
     <color name="orange">#E8833A</color>
+    <color name="minigaia_yellow">#F9F3DF</color>
+    <color name="minigaia_green">#CDF2CA</color>
+    <color name="minigaia_pink">#FFDEFA</color>
+    <color name="minigaia_orange">#FFC898</color>
+    <color name="minigaia_blue">#CDF0EA</color>
+    <color name="minigaia_bg">#e9fbe8</color>
+    <color name="minigaia_darkerPink">#fcb5f0</color>
+    <color name="minigaia_darkerBlue">#c4ede6</color>
+    <color name="minigaia_button">#c5f3c2</color>
+    <color name="minigaia_onClick">#8ee46e</color>
 </resources>

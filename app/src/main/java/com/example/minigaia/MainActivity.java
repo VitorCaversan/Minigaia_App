@@ -287,15 +287,15 @@ public class MainActivity extends AppCompatActivity {
      */
     private void updateButtonsText()
     {
-        String auxString = getString(R.string.pH) + "\n" + this.sensorData.getPh();
+        String auxString = this.sensorData.getPh();
         binding.phButton.setText(auxString);
-        auxString = getString(R.string.desired_pH) + "\n" + this.sensorData.getDesiredPh();
+        auxString = this.sensorData.getDesiredPh();
         binding.desiredPhBtn.setText(auxString);
-        auxString = getString(R.string.humidity) + "\n" + this.sensorData.getHumidity() + " %";
+        auxString = this.sensorData.getHumidity() + " %";
         binding.humidityBtn.setText(auxString);
-        auxString = getString(R.string.temperature) + "\n" + this.sensorData.getTemperature() + " ºC";
+        auxString = this.sensorData.getTemperature() + " ºC";
         binding.temperatureButton.setText(auxString);
-        auxString = getString(R.string.water_lvl) + "\n" + this.sensorData.getWaterLvl() + " L";
+        auxString = this.sensorData.getWaterLvl() + " L";
         binding.waterLvlBtn.setText(auxString);
     }
 
