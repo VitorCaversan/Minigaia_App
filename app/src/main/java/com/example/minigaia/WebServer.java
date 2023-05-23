@@ -115,7 +115,7 @@ public class WebServer
         Call<ResponseBody> call = service.sendData(Long.toString(currentTimeMillis/1000),
                                                    sensorData.getDesiredPh(),
                                                    Long.toString(schedTimeInSec),
-                                                   Boolean.toString(measureNow));
+                                                   (true == measureNow) ? "1" : "0");
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
