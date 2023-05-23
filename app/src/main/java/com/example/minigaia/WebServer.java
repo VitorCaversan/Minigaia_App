@@ -23,6 +23,7 @@ public class WebServer
     static final long HOUR_IN_SEC = 3600;
     static final long MIN_IN_SEC  = 60;
 
+    private SensorData sensorData;
     private Retrofit retrofit;
 
     android.content.Context mainActivityContext;
@@ -36,6 +37,8 @@ public class WebServer
                 .build();
 
         this.mainActivityContext = context;
+
+        this.sensorData = new SensorData("0", "0", "0", "0", "0");
     }
 
     public interface ESP32Service {
@@ -60,13 +63,9 @@ public class WebServer
     /**
      * The base to request and receive data from a web server
      */
-    public SensorData updateSensorData(SensorData mainSensData, boolean measureNow) {
+    public SensorData updateSensorData(SensorData mainSensData) {
         ESP32Service service = retrofit.create(ESP32Service.class);
         Call<ResponseBody> call = service.getMeasurements();
-        sendSyncData(mainSensData, measureNow);
-
-        //  It has to be an array, otherwise it can't be accessed by the following functions
-        SensorData[] sensorData = {new SensorData("0", mainSensData.getDesiredPh(), "0", "0", "0")};
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -76,7 +75,7 @@ public class WebServer
                     try {
                         String responseString = response.body().string();
 
-                        sensorData[0] = parseResponseString(responseString, mainSensData.getDesiredPh());
+                        sensorData = parseResponseString(responseString, mainSensData.getDesiredPh());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -91,7 +90,7 @@ public class WebServer
             }
         });
 
-        return sensorData[0];
+        return sensorData;
     }
 
     /**
@@ -99,7 +98,7 @@ public class WebServer
      *
      * @param sensorData Sensor data to be used and later return the correct values
      */
-    private void sendSyncData(SensorData sensorData, boolean measureNow)
+    public void sendSyncData(SensorData sensorData, boolean measureNow)
     {
         long currentTimeMillis = System.currentTimeMillis();
 
@@ -107,7 +106,7 @@ public class WebServer
         int hour = Integer.parseInt(measureTime.substring(0,2));
         int min  = Integer.parseInt(measureTime.substring(3,measureTime.length()));
 
-        long schedTimeInSec = (hour * HOUR_IN_SEC) + (min + HOUR_IN_SEC);
+        long schedTimeInSec = (hour * HOUR_IN_SEC) + (min + MIN_IN_SEC);
 
         // Create the service
         ESP32Service service = retrofit.create(ESP32Service.class);

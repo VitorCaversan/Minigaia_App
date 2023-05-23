@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 try
                 {
-                    SensorData newSensData = webServer.updateSensorData(sensorData, false);
+                    SensorData newSensData = webServer.updateSensorData(sensorData);
                     if (!Objects.equals(newSensData.getPh(), "0"))
                     {
                         sensorData = newSensData;
@@ -93,12 +93,13 @@ public class MainActivity extends AppCompatActivity {
         binding.measureNowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SensorData newSensData = webServer.updateSensorData(sensorData, true);
+                SensorData newSensData = webServer.updateSensorData(sensorData);
                 if (!Objects.equals(newSensData.getPh(), "0"))
                 {
                     sensorData = newSensData;
                 }
 
+                webServer.sendSyncData(sensorData, true);
                 updateButtonsText();
             }
         });
