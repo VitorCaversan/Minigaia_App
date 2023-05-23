@@ -39,6 +39,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Timer;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -57,11 +58,10 @@ public class MainActivity extends AppCompatActivity {
     static final int DESIRED_PH_BTN = 0;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
-    public Intent timeIntent;
-    public SensorData sensorData;
-    public BluetoothActivity bluetoothActivity;
-    // Declare Retrofit as a class field
-    private Retrofit retrofit;
+    private WebServer webServer;
+    public  Intent timeIntent;
+    public  SensorData sensorData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,27 +69,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
-        //Setting base URL
-        retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.15.99") // Your ESP32 IP address
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        //Calling the two functions for the same button
-        binding.webServerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getResponseFromESP();
-                toggleLED();
-            }
-        });
+        this.webServer = new WebServer(MainActivity.this);
+
         // Replace the hardcoded JSON string with the actual data from your ESP32 sensor
         String jsonString = "{\"ph\":7.2,\"desiredPh\":6.4,\"temperature\":25.3,\"waterLvl\":10.4,\"humidity\":\"67.9\"}";
         this.sensorData = parseJsonData(jsonString);
-        this.createTableContent(this.sensorData);
 
         // Sets initial text for the buttons
         updateButtonsText();
-        updateTemperature();
 
         ///////////////// THIS CAME WITH THE TEMPLATE (??) ///////////////////
 
@@ -110,8 +97,14 @@ public class MainActivity extends AppCompatActivity {
             {
                 try
                 {
-                    updateSensorData();
+                    SensorData newSensData = webServer.updateSensorData(sensorData.getDesiredPh());
+                    if (!Objects.equals(newSensData.getPh(), "0"))
+                    {
+                        sensorData = newSensData;
+                    }
+
                     updateButtonsText();
+                    webServer.toggleLED();
                 }
                 catch (Exception e)
                 {
@@ -306,59 +299,6 @@ public class MainActivity extends AppCompatActivity {
         binding.waterLvlBtn.setText(auxString);
     }
 
-    /**
-     * Sets default values for a table layout in this context
-     *
-     * @param sensorData Class that contains various data from sensors and system
-     */
-    private void createTableContent(SensorData sensorData) {
-        // Change to a table layout from this context if you want to use this function
-        TableLayout tableLayout = new TableLayout(this);
-        TableRow row0 = new TableRow(this);
-        tableLayout.addView(row0);
-        TableRow row1 = new TableRow(this);
-        tableLayout.addView(row1);
-        TableRow row2 = new TableRow(this);
-        tableLayout.addView(row2);
-        TableRow row3 = new TableRow(this);
-        tableLayout.addView(row3);
-
-        TextView currentPh = new TextView(this);
-        currentPh.setText("Nível Atual do Ph:");
-        currentPh.setTextSize(25);
-        row0.addView(currentPh);
-        TextView currentPhValue = new TextView(this);
-        currentPhValue.setText(" " + sensorData.getPh());
-        currentPhValue.setTextSize(25);
-        row0.addView(currentPhValue);
-
-        TextView desiredPh = new TextView(this);
-        desiredPh.setText("Nível Desejado de Ph:");
-        desiredPh.setTextSize(25);
-        row1.addView(desiredPh);
-        TextView desiredPhValue = new TextView(this);
-        desiredPhValue.setText(" " + sensorData.getDesiredPh());
-        desiredPhValue.setTextSize(25);
-        row1.addView(desiredPhValue);
-
-        TextView waterLvl = new TextView(this);
-        waterLvl.setText("Nível da água:");
-        waterLvl.setTextSize(25);
-        row2.addView(waterLvl);
-        TextView waterLvlValue = new TextView(this);
-        waterLvlValue.setText(" " + sensorData.getTemperature());
-        waterLvlValue.setTextSize(25);
-        row2.addView(waterLvlValue);
-
-        TextView temperature = new TextView(this);
-        temperature.setText("Date " + sensorData.getTemperature());
-        temperature.setTextSize(25);
-        row3.addView(temperature);
-        TextView temperatureValue = new TextView(this);
-        temperatureValue.setText(" " + sensorData.getTemperature());
-        temperatureValue.setTextSize(25);
-        row3.addView(temperatureValue);
-    }
     private SensorData parseJsonData(String jsonString) {
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
@@ -375,171 +315,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Receive HelloWorld
-    public void getResponseFromESP() {
-        ESP32Service service = retrofit.create(ESP32Service.class);
-        Call<ResponseBody> call = service.getValue();
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    if(response.isSuccessful()) {
-                        String responseBodyString = response.body().string();
-                        Toast.makeText(MainActivity.this, responseBodyString, Toast.LENGTH_SHORT).show();
-                    } else {
-                        // Handle the error here
-                        Toast.makeText(MainActivity.this, "Error: " + response.errorBody(), Toast.LENGTH_SHORT).show();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                sendCurrentTime();
-                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    //Verifica respostas
-    public interface ESP32Service {
-        @GET("/")
-        Call<ResponseBody> getValue();
-        @GET("/temperature")
-        Call<ResponseBody> getTemperature();
-        @GET("/led")
-        Call<ResponseBody> toggleLED();
-        @GET("/sync")
-        Call<ResponseBody> getMeasures();
-        @FormUrlEncoded
-        @POST("/time")
-        Call<ResponseBody> setTime(@Field("time") String time);
-    }
-
-    public void updateSensorData() {
-        ESP32Service service = retrofit.create(ESP32Service.class);
-        Call<ResponseBody> call = service.getMeasures();
-        sendCurrentTime();
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    try {
-                        String responseString = response.body().string();
-
-                        parseResponseString(responseString);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    Toast.makeText(MainActivity.this, "Error updating measures", Toast.LENGTH_SHORT).show();
-                }
-            }
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-        updateButtonsText();
-    }
-
-    private void parseResponseString(String responseString)
-    {
-        String sensorValues;
-
-        try
-        {
-            sensorValues = responseString.substring(0,5);
-            this.sensorData.setPh(sensorValues);
-            sensorValues = responseString.substring(5,10);
-            this.sensorData.setHumidity(sensorValues);
-            sensorValues = responseString.substring(10,15);
-            this.sensorData.setTemperature(sensorValues);
-            sensorValues = responseString.substring(15,20);
-            this.sensorData.setWaterLvl(sensorValues);
-        }
-        catch (Exception e)
-        {
-            Toast.makeText(MainActivity.this, "Sync failed", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-    }
-
-    public void updateTemperature() {
-        ESP32Service service = retrofit.create(ESP32Service.class);
-        Call<ResponseBody> call = service.getTemperature();
-        sendCurrentTime();
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    try {
-                        String temperature = response.body().string();
-                        // Update your temperature TextView here
-                        sensorData.setTemperature(temperature);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    Toast.makeText(MainActivity.this, "Error getting temperature", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        updateButtonsText();
-    }
-    public void toggleLED() {
-        ESP32Service service = retrofit.create(ESP32Service.class);
-        Call<ResponseBody> call = service.toggleLED();
-
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                // Handle the response here
-                if(response.isSuccessful()) {
-                    Toast.makeText(MainActivity.this, "LED state toggled", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Handle the error here
-                    Toast.makeText(MainActivity.this, "Error toggling LED state", Toast.LENGTH_SHORT).show();
-                }
-            }
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-    public void sendCurrentTime() {
-        // Get the current time
-        String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
-
-        // Create the service
-        ESP32Service service = retrofit.create(ESP32Service.class);
-
-        // Make the call
-        Call<ResponseBody> call = service.setTime(currentTime);
-
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(response.isSuccessful()) {
-                    Toast.makeText(MainActivity.this, "Time updated successfully", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this, "Error setting time", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 }
 

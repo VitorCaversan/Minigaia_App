@@ -147,18 +147,6 @@
         app:srcCompat="@android:drawable/stat_sys_data_bluetooth"
         app:tint="@color/orange" />
 
-    <Button
-        android:id="@+id/webServer_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Send Web Server Request"
-        app:layout_constraintBottom_toTopOf="@+id/timeButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintVertical_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/waterLvlBtn" />
-
     <!-- Replace 'logo' with your actual logo file name
     <ImageView
         android:id="@+id/projectLogo"
