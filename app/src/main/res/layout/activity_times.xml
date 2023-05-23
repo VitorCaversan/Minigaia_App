@@ -14,6 +14,11 @@
         android:text="Button"
         android:textColor="@color/black"
         android:textSize="40dp"
+        app:icon="@drawable/sun"
+        app:iconGravity="textTop"
+        app:iconPadding="20dp"
+        app:iconSize="60dp"
+        app:iconTint="#000000"
         app:backgroundTint="@color/minigaia_yellow"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,6 +33,11 @@
         android:text="Button2"
         android:textColor="@color/black"
         android:textSize="40dp"
+        app:icon="@drawable/moon"
+        app:iconGravity="textTop"
+        app:iconPadding="20dp"
+        app:iconSize="60dp"
+        app:iconTint="#000000"
         app:backgroundTint="@color/minigaia_pink"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -54,13 +64,57 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="103dp"
-        android:layout_height="67dp"
+        android:layout_width="81dp"
+        android:layout_height="69dp"
         android:layout_marginTop="28dp"
         app:layout_constraintBottom_toTopOf="@+id/nightButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dayButton"
-        app:layout_constraintVertical_bias="0.38"
+        app:layout_constraintVertical_bias="0.403"
         app:srcCompat="@drawable/clock" />
+
+    <ImageView
+        android:layout_width="81dp"
+        android:layout_height="69dp"
+        android:layout_marginTop="28dp"
+        app:layout_constraintBottom_toTopOf="@+id/nightButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.254"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dayButton"
+        app:layout_constraintVertical_bias="0.403"
+        app:srcCompat="@drawable/arrowdown" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="52dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="28dp"
+        app:layout_constraintBottom_toTopOf="@+id/nightButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.686"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dayButton"
+        app:layout_constraintVertical_bias="0.41"
+        app:srcCompat="@drawable/plus" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="53dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="28dp"
+        android:fontFamily="sans-serif-thin"
+        android:text="12"
+        android:textAlignment="center"
+        android:textColor="#434547"
+        android:textSize="45dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/nightButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/imageView3"
+        app:layout_constraintTop_toBottomOf="@+id/dayButton"
+        app:layout_constraintVertical_bias="0.417" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

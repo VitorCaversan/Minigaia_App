@@ -3,11 +3,4 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.minigaia.MainActivity"
     android:background="@color/minigaia_button">
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:background="@color/minigaia_button"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
-
 </menu>
