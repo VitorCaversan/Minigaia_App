@@ -5,8 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     private WebServer webServer;
+    private Memory memory;
     public  Intent timeIntent;
     public  SensorData sensorData;
 
@@ -47,10 +46,15 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
 
         this.webServer = new WebServer(MainActivity.this);
+        this.memory    = new Memory(MainActivity.this);
 
-        // Replace the hardcoded JSON string with the actual data from your ESP32 sensor
-        String jsonString = "{\"ph\":7.2,\"desiredPh\":6.4,\"temperature\":25.3,\"waterLvl\":10.4,\"humidity\":\"67.9\"}";
-        this.sensorData = parseJsonData(jsonString);
+        this.sensorData = this.memory.loadData();
+
+        if (Objects.equals(this.sensorData.getPh(), "0"))
+        {
+            String jsonString = "{\"ph\":7.2,\"desiredPh\":6.4,\"temperature\":25.3,\"waterLvl\":10.4,\"humidity\":\"67.9\"}";
+            this.sensorData = parseJsonData(jsonString);
+        }
 
         // Sets initial text for the buttons
         updateButtonsText();
@@ -176,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 String resultData = returnIntent.getStringExtra("earlyMeasureTime");
 
-                this.sensorData.setearlyMeasureTime(resultData);
+                this.sensorData.setEarlyMeasureTime(resultData);
             }
             else
             {
@@ -225,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
     public void openTimeActivity(View view)
     {
         // Puts extra values in a buffer to be read when initializing the target activity
-        this.timeIntent.putExtra("earlyMeasureTime", this.sensorData.getearlyMeasureTime());
+        this.timeIntent.putExtra("earlyMeasureTime", this.sensorData.getEarlyMeasureTime());
         int requestCode = 1;
 
         startActivityForResult(this.timeIntent, requestCode);
@@ -276,6 +280,8 @@ public class MainActivity extends AppCompatActivity {
         binding.temperatureButton.setText(auxString);
         auxString = this.sensorData.getWaterLvl() + " L";
         binding.waterLvlBtn.setText(auxString);
+
+        this.memory.saveData(this.sensorData, MainActivity.this);
     }
 
     private SensorData parseJsonData(String jsonString) {

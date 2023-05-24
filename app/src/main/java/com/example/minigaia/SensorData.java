@@ -1,8 +1,5 @@
 package com.example.minigaia;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 public class SensorData {
     private String ph;
     private String desiredPh;
@@ -59,11 +56,11 @@ public class SensorData {
     }
     public void   setHumidity(String humidity) {this.humidity = humidity;}
 
-    public String getearlyMeasureTime()
+    public String getEarlyMeasureTime()
     {
         return earlyMeasureTime;
     }
-    public void setearlyMeasureTime(String earlyMeasureTime)
+    public void setEarlyMeasureTime(String earlyMeasureTime)
     {
         this.earlyMeasureTime = earlyMeasureTime;
     }

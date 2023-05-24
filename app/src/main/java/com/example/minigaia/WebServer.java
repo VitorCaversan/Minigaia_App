@@ -102,7 +102,7 @@ public class WebServer
     {
         long currentTimeMillis = System.currentTimeMillis();
 
-        String measureTime = sensorData.getearlyMeasureTime();
+        String measureTime = sensorData.getEarlyMeasureTime();
         int hour = Integer.parseInt(measureTime.substring(0,2));
         int min  = Integer.parseInt(measureTime.substring(3,measureTime.length()));
 
