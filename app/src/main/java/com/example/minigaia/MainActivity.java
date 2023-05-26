@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
     private void createTextInput(int pressedBtn)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Your desired pH value:");
+        builder.setTitle("Valor pH desejado:");
 
         // Sets up the input
         final EditText input = new EditText(MainActivity.this);

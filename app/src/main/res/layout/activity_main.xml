@@ -55,7 +55,7 @@
 
     <Button
         android:id="@+id/waterLvlBtn"
-        android:layout_width="342dp"
+        android:layout_width="0dp"
         android:layout_height="138dp"
         android:layout_marginTop="16dp"
         android:backgroundTint="@color/minigaia_darkerBlue"
@@ -71,7 +71,7 @@
         app:layout_constraintHorizontal_bias="0.405"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/humidityBtn"
-        app:layout_constraintWidth_percent="0.8"
+        app:layout_constraintWidth_percent="0.85"
         app:srcCompat="@drawable/waterlevel" />
 
     <Button
