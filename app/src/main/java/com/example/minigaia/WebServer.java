@@ -94,7 +94,7 @@ public class WebServer
     }
 
     /**
-     * The base to data to a web server
+     * The base to send data to a web server
      *
      * @param sensorData Sensor data to be used and later return the correct values
      */

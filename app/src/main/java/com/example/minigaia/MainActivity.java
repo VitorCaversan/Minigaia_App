@@ -10,8 +10,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
 
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -30,7 +32,10 @@ import org.json.JSONObject;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
-    static final int DESIRED_PH_BTN = 0;
+    static final int DESIRED_PH_BTN           = 0;
+    static final double TEMPERATURE_THRESHOLD = 25.0;
+    static final double PH_TOO_ACID           = 5.0;
+    static final double PH_TOO_BASIC          = 9.0;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     private WebServer webServer;
@@ -57,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Sets initial text for the buttons
-        updateButtonsText();
+        updateButtons();
 
         ///////////////// THIS CAME WITH THE TEMPLATE (??) ///////////////////
 
@@ -84,7 +89,8 @@ public class MainActivity extends AppCompatActivity {
                         sensorData = newSensData;
                     }
 
-                    updateButtonsText();
+                    webServer.sendSyncData(sensorData, false);
+                    updateButtons();
                     webServer.toggleLED();
                 }
                 catch (Exception e)
@@ -93,6 +99,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        binding.syncButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast newToast = Toast.makeText(getApplicationContext(),
+                                           "Sincronizar o telefone com o controlador",
+                                                Toast.LENGTH_SHORT);
+                newToast.setGravity(Gravity.TOP, 0, 10);
+                newToast.show();
+                return true; // Return true to consume the long click event
+            }
+        });
+
 
         binding.measureNowButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,7 +123,19 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 webServer.sendSyncData(sensorData, true);
-                updateButtonsText();
+                updateButtons();
+            }
+        });
+
+        binding.measureNowButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast newToast = Toast.makeText(getApplicationContext(),
+                        "Requisitar a medida imediata dos sensores",
+                        Toast.LENGTH_SHORT);
+                newToast.setGravity(Gravity.TOP, 0, 10);
+                newToast.show();
+                return true; // Return true to consume the long click event
             }
         });
 
@@ -119,6 +150,66 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 createTextInput(DESIRED_PH_BTN);
+            }
+        });
+
+        binding.desiredPhBtn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast newToast = Toast.makeText(getApplicationContext(),
+                        "Valor do pH alvo",
+                        Toast.LENGTH_SHORT);
+                newToast.setGravity(Gravity.TOP, 0, 0);
+                newToast.show();
+                return true; // Return true to consume the long click event
+            }
+        });
+
+        binding.phButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast newToast = Toast.makeText(getApplicationContext(),
+                        "Valor do pH atual",
+                        Toast.LENGTH_SHORT);
+                newToast.setGravity(Gravity.TOP, 0, 0);
+                newToast.show();
+                return true; // Return true to consume the long click event
+            }
+        });
+
+        binding.humidityBtn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast newToast = Toast.makeText(getApplicationContext(),
+                        "Humidade atual na régua",
+                        Toast.LENGTH_SHORT);
+                newToast.setGravity(Gravity.TOP, 0, 0);
+                newToast.show();
+                return true; // Return true to consume the long click event
+            }
+        });
+
+        binding.temperatureButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast newToast = Toast.makeText(getApplicationContext(),
+                        "Temperatura atual na régua",
+                        Toast.LENGTH_SHORT);
+                newToast.setGravity(Gravity.TOP, 0, 0);
+                newToast.show();
+                return true; // Return true to consume the long click event
+            }
+        });
+
+        binding.waterLvlBtn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast newToast = Toast.makeText(getApplicationContext(),
+                        "Nível de água no reservatório",
+                        Toast.LENGTH_SHORT);
+                newToast.setGravity(Gravity.TOP, 0, 0);
+                newToast.show();
+                return true; // Return true to consume the long click event
             }
         });
     }
@@ -249,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
             else
             {
                 this.sensorData.setDesiredPh(enteredText);
-                updateButtonsText();
+                updateButtons();
 
                 if ((value < 5) || (value > 9))
                 {
@@ -266,18 +357,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Function that updates all the screen button with the values of sensorData
+     * Function that updates all the screen buttons with the values of sensorData
      */
-    private void updateButtonsText()
+    private void updateButtons()
     {
         String auxString = this.sensorData.getPh();
         binding.phButton.setText(auxString);
+        double dAuxValue = Double.parseDouble(this.sensorData.getPh());
+        if (dAuxValue > PH_TOO_BASIC)
+        {
+            binding.phButton.setBackgroundColor(ContextCompat.getColor(MainActivity.this,
+                                                                        R.color.minigaia_darkerPink));
+        }
+        else if (dAuxValue < PH_TOO_ACID)
+        {
+            binding.phButton.setBackgroundColor(ContextCompat.getColor(MainActivity.this,
+                                                                        R.color.minigaia_acidGreen));
+        }
+        else
+        {
+            binding.phButton.setBackgroundColor(ContextCompat.getColor(MainActivity.this,
+                                                                        R.color.minigaia_pink));
+        }
+
         auxString = this.sensorData.getDesiredPh();
         binding.desiredPhBtn.setText(auxString);
         auxString = this.sensorData.getHumidity() + " %";
         binding.humidityBtn.setText(auxString);
         auxString = this.sensorData.getTemperature() + " ºC";
+
         binding.temperatureButton.setText(auxString);
+        dAuxValue = Double.parseDouble(this.sensorData.getTemperature());
+        if (dAuxValue > TEMPERATURE_THRESHOLD)
+        {
+            binding.temperatureButton.setBackgroundColor(ContextCompat.getColor(MainActivity.this,
+                    R.color.minigaia_orange));
+        }
+        else
+        {
+            binding.temperatureButton.setBackgroundColor(ContextCompat.getColor(MainActivity.this,
+                    R.color.minigaia_cool_blue));
+        }
         auxString = this.sensorData.getWaterLvl() + " L";
         binding.waterLvlBtn.setText(auxString);
 
