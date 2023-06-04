@@ -37,6 +37,7 @@ public class Bluetooth {
     private final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // UUID para SPP (Serial Port Profile)
 
     private boolean isConnected;
+    private String deviceAddress;
     Map<String, String> macAddresses;
 
     public Bluetooth(MainActivity context) {
@@ -48,9 +49,8 @@ public class Bluetooth {
             // return error message
         }
         // Solicita permissão para utilizar o Bluetooth caso não esteja habilitado
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+        while (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.BLUETOOTH}, 1);
-            return;
         }
         // Habilita o Bluetooth caso não esteja habilitado
         if (!bluetoothAdapter.isEnabled()) {
@@ -67,10 +67,10 @@ public class Bluetooth {
     }
 
     public List<String> getPairedDevices() {
-        if(ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
+        while (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.BLUETOOTH_ADMIN}, 1);
         }
-        if(ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+        while (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 1);
         }
 
@@ -94,7 +94,7 @@ public class Bluetooth {
     }
 
     public boolean connect(String deviceName) {
-        String deviceAddress = macAddresses.get(deviceName);
+        deviceAddress = deviceName != null ? macAddresses.get(deviceName) : deviceAddress;
 
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
 
@@ -128,6 +128,13 @@ public class Bluetooth {
     }
 
     public void send(JSONObject jsonMessage) {
+        if (socket==null) {
+            return;
+        }
+        if (!socket.isConnected())
+        {
+            connect(null);
+        }
         try {
             String message = jsonMessage.toString();
             outputStream.write(message.getBytes());
@@ -136,6 +143,14 @@ public class Bluetooth {
         }
     }
     public JSONObject receive() {
+        if (socket == null)
+        {
+            return null;
+        }
+        if (!socket.isConnected())
+        {
+            connect(null);
+        }
         try {
             byte[] buffer = new byte[1024];
             int bytes = inputStream.read(buffer);

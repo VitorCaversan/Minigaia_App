@@ -71,4 +71,12 @@ public class SensorData {
 
         return json;
     }
+
+    public void updateValues(JSONObject jsonValues) throws JSONException
+    {
+        this.ph          = jsonValues.getString("ph");
+        this.temperature = jsonValues.getString("temperature");
+        this.humidity    = jsonValues.getString("humidity");
+        this.waterLvl    = jsonValues.getString("water_volume");
+    }
 }

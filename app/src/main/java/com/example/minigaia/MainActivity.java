@@ -85,13 +85,11 @@ public class MainActivity extends AppCompatActivity {
             {
                 try
                 {
-//                    SensorData newSensData = webServer.updateSensorData(sensorData);
-//                    if (!Objects.equals(newSensData.getPh(), "0"))
-//                    {
-//                        sensorData = newSensData;
-//                    }
-
                     bluetooth.send(sensorData.toJson(false));
+
+                    JSONObject rxJson = bluetooth.receive();
+                    sensorData.updateValues(rxJson);
+
                     updateButtons();
                 }
                 catch (Exception e)
@@ -119,13 +117,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 try
                 {
-    //                SensorData newSensData = webServer.updateSensorData(sensorData);
-    //                if (!Objects.equals(newSensData.getPh(), "0"))
-    //                {
-    //                    sensorData = newSensData;
-    //                }
-
                     bluetooth.send(sensorData.toJson(true));
+
+                    JSONObject rxJson = bluetooth.receive();
+                    sensorData.updateValues(rxJson);
+
                     updateButtons();
                 }
                 catch (Exception e)
@@ -432,7 +428,7 @@ public class MainActivity extends AppCompatActivity {
     {
         List<String> pairedDevices = this.bluetooth.getPairedDevices();
 
-        String correctDevice = pairedDevices.stream().filter(deviceName -> deviceName.contains("miniGaia")).findFirst().orElse(null);
+        String correctDevice = pairedDevices.stream().filter(deviceName -> deviceName.contains("MiniGaia")).findFirst().orElse(null);
 
         try
         {
