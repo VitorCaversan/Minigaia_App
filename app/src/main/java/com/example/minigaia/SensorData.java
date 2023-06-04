@@ -1,5 +1,10 @@
 package com.example.minigaia;
 
+import com.google.gson.JsonObject;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class SensorData {
     private String ph;
     private String desiredPh;
@@ -7,7 +12,6 @@ public class SensorData {
     private String humidity;
     private String waterLvl;
     private String earlyMeasureTime;
-    private String date;
 
     public SensorData(String ph, String desiredPh, String temperature, String waterLvl, String humidity)
     {
@@ -17,16 +21,6 @@ public class SensorData {
         this.waterLvl    = waterLvl;
         this.humidity    = humidity;
         this.earlyMeasureTime = "07:00";
-
-        // A HIGH API LEVEL IS NEEDED TO USE THESE FUNCTIONS (26+)
-        try {
-            long currentTimeMillis = System.currentTimeMillis();
-            this.date = Long.toString((currentTimeMillis / 1000));
-        }
-        catch (Exception e)
-        {
-            this.date = "10/06/2000";
-        }
     }
 
     public String getPh() {
@@ -64,7 +58,17 @@ public class SensorData {
     {
         this.earlyMeasureTime = earlyMeasureTime;
     }
-    public String getDate() {
-        return date;
+
+    public JSONObject toJson(Boolean measureNow) throws JSONException {
+        measureNow = (measureNow == null) ? false : measureNow;
+
+        JSONObject json = new JSONObject();
+
+        json.put("time", System.currentTimeMillis()/1000);
+        json.put("target_pH", this.desiredPh);
+        json.put("schedule", this.earlyMeasureTime);
+        json.put("measureNow", measureNow);
+
+        return json;
     }
 }

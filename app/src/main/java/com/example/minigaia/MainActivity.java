@@ -29,6 +29,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     static final double PH_TOO_BASIC          = 9.0;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
-    private WebServer webServer;
+    private Bluetooth bluetooth;
     private Memory memory;
     public  Intent timeIntent;
     public  SensorData sensorData;
@@ -50,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
-        this.webServer = new WebServer(MainActivity.this);
         this.memory    = new Memory(MainActivity.this);
+        this.bluetooth = new Bluetooth(MainActivity.this);
 
         this.sensorData = this.memory.loadData();
 
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
             this.sensorData = parseJsonData(jsonString);
         }
 
+        connectToEsp();
         // Sets initial text for the buttons
         updateButtons();
 
@@ -83,15 +85,14 @@ public class MainActivity extends AppCompatActivity {
             {
                 try
                 {
-                    SensorData newSensData = webServer.updateSensorData(sensorData);
-                    if (!Objects.equals(newSensData.getPh(), "0"))
-                    {
-                        sensorData = newSensData;
-                    }
+//                    SensorData newSensData = webServer.updateSensorData(sensorData);
+//                    if (!Objects.equals(newSensData.getPh(), "0"))
+//                    {
+//                        sensorData = newSensData;
+//                    }
 
-                    webServer.sendSyncData(sensorData, false);
+                    bluetooth.send(sensorData.toJson(false));
                     updateButtons();
-                    webServer.toggleLED();
                 }
                 catch (Exception e)
                 {
@@ -116,14 +117,21 @@ public class MainActivity extends AppCompatActivity {
         binding.measureNowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SensorData newSensData = webServer.updateSensorData(sensorData);
-                if (!Objects.equals(newSensData.getPh(), "0"))
+                try
                 {
-                    sensorData = newSensData;
-                }
+    //                SensorData newSensData = webServer.updateSensorData(sensorData);
+    //                if (!Objects.equals(newSensData.getPh(), "0"))
+    //                {
+    //                    sensorData = newSensData;
+    //                }
 
-                webServer.sendSyncData(sensorData, true);
-                updateButtons();
+                    bluetooth.send(sensorData.toJson(true));
+                    updateButtons();
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException();
+                }
             }
         });
 
@@ -420,5 +428,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void connectToEsp()
+    {
+        List<String> pairedDevices = this.bluetooth.getPairedDevices();
+
+        String correctDevice = pairedDevices.stream().filter(deviceName -> deviceName.contains("miniGaia")).findFirst().orElse(null);
+
+        try
+        {
+            if (bluetooth.connect(correctDevice)){
+                Toast.makeText(this, "miniGaia Conectado!", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(this, "Falha ao conectar miniGaia!", Toast.LENGTH_SHORT).show();
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            Toast.makeText(this, "Faça o pareamento do miniGaia", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
 
