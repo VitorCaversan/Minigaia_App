@@ -12,8 +12,6 @@ import android.util.ArrayMap;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.google.gson.JsonObject;
-
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -25,9 +23,9 @@ import java.util.Set;
 import java.util.UUID;
 
 
-public class Bluetooth {
+public class Bluetooth implements Runnable {
     // Activity context
-    private MainActivity context;
+    private MainActivity activity;
 
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
@@ -40,17 +38,17 @@ public class Bluetooth {
     private String deviceAddress;
     Map<String, String> macAddresses;
 
-    public Bluetooth(MainActivity context) {
-        this.context = context;
-        bluetoothManager = (BluetoothManager) context.getSystemService(context.BLUETOOTH_SERVICE);
+    public Bluetooth(MainActivity activity) {
+        this.activity = activity;
+        bluetoothManager = (BluetoothManager) activity.getSystemService(activity.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         // Checa se o dispositivo suporta Bluetooth
         if (bluetoothAdapter == null) {
             // return error message
         }
         // Solicita permissão para utilizar o Bluetooth caso não esteja habilitado
-        while (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.BLUETOOTH}, 1);
+        while (ActivityCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.BLUETOOTH}, 1);
         }
         // Habilita o Bluetooth caso não esteja habilitado
         if (!bluetoothAdapter.isEnabled()) {
@@ -67,11 +65,11 @@ public class Bluetooth {
     }
 
     public List<String> getPairedDevices() {
-        while (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.BLUETOOTH_ADMIN}, 1);
+        while (ActivityCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.BLUETOOTH_ADMIN}, 1);
         }
-        while (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 1);
+        while (ActivityCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 1);
         }
 
         if (bluetoothAdapter != null && bluetoothAdapter.isEnabled())
@@ -98,8 +96,8 @@ public class Bluetooth {
 
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
 
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.BLUETOOTH}, 1);
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.BLUETOOTH}, 1);
             return false;
         }
 
@@ -142,7 +140,7 @@ public class Bluetooth {
             e.printStackTrace();
         }
     }
-    public JSONObject receive() {
+    private JSONObject receive() {
         if (socket == null)
         {
             return null;
@@ -159,6 +157,20 @@ public class Bluetooth {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                JSONObject jsonMessage = receive();
+                if (jsonMessage != null && activity != null) {
+                    activity.receive(jsonMessage);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

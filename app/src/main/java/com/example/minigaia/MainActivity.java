@@ -86,11 +86,6 @@ public class MainActivity extends AppCompatActivity {
                 try
                 {
                     bluetooth.send(sensorData.toJson(false));
-
-                    JSONObject rxJson = bluetooth.receive();
-                    sensorData.updateValues(rxJson);
-
-                    updateButtons();
                 }
                 catch (Exception e)
                 {
@@ -118,11 +113,6 @@ public class MainActivity extends AppCompatActivity {
                 try
                 {
                     bluetooth.send(sensorData.toJson(true));
-
-                    JSONObject rxJson = bluetooth.receive();
-                    sensorData.updateValues(rxJson);
-
-                    updateButtons();
                 }
                 catch (Exception e)
                 {
@@ -444,6 +434,11 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(this, "Faça o pareamento do miniGaia", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void receive(JSONObject jsonObject) throws JSONException {
+        sensorData.updateValues(jsonObject);
+        updateButtons();
     }
 }
 
