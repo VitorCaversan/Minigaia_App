@@ -73,9 +73,9 @@ public class SensorData {
         String measureTime = this.earlyMeasureTime;
         int hour = Integer.parseInt(measureTime.substring(0,2));
         int min  = Integer.parseInt(measureTime.substring(3,measureTime.length()));
-        long schedTimeInSec = (hour * HOUR_IN_SEC) + (min + MIN_IN_SEC);
+        long schedTimeInSec = (hour * HOUR_IN_SEC) + (min * MIN_IN_SEC);
         json.put("schedule", schedTimeInSec);
-        
+
         json.put("measureNow", measureNow);
 
         return json;

@@ -424,6 +424,7 @@ public class MainActivity extends AppCompatActivity {
         {
             if (bluetooth.connect(correctDevice)){
                 Toast.makeText(this, "miniGaia Conectado!", Toast.LENGTH_SHORT).show();
+                bluetooth.send(sensorData.toJson(false));
             }
             else {
                 Toast.makeText(this, "Falha ao conectar miniGaia!", Toast.LENGTH_SHORT).show();
