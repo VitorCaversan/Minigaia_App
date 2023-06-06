@@ -13,6 +13,9 @@ public class SensorData {
     private String waterLvl;
     private String earlyMeasureTime;
 
+    static final long HOUR_IN_SEC = 3600;
+    static final long MIN_IN_SEC  = 60;
+
     public SensorData(String ph, String desiredPh, String temperature, String waterLvl, String humidity)
     {
         this.ph          = ph;
@@ -66,7 +69,13 @@ public class SensorData {
 
         json.put("time", System.currentTimeMillis()/1000);
         json.put("target_pH", this.desiredPh);
-        json.put("schedule", this.earlyMeasureTime);
+
+        String measureTime = this.earlyMeasureTime;
+        int hour = Integer.parseInt(measureTime.substring(0,2));
+        int min  = Integer.parseInt(measureTime.substring(3,measureTime.length()));
+        long schedTimeInSec = (hour * HOUR_IN_SEC) + (min + MIN_IN_SEC);
+        json.put("schedule", schedTimeInSec);
+        
         json.put("measureNow", measureNow);
 
         return json;
