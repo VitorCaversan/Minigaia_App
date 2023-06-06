@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.pm.PackageManager;
 
 import android.util.ArrayMap;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -58,6 +59,9 @@ public class Bluetooth implements Runnable {
         }
         socket = null;
         isConnected = false;
+
+        Thread t = new Thread(this);
+        t.start();
     }
 
     public boolean isConnected() {
@@ -164,6 +168,10 @@ public class Bluetooth implements Runnable {
     public void run() {
         try {
             while (true) {
+                if(socket == null || !socket.isConnected()) {
+                    Thread.sleep(1000);
+                    continue;
+                }
                 JSONObject jsonMessage = receive();
                 if (jsonMessage != null && activity != null) {
                     activity.receive(jsonMessage);
