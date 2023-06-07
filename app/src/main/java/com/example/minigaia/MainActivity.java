@@ -418,10 +418,10 @@ public class MainActivity extends AppCompatActivity {
     {
         List<String> pairedDevices = this.bluetooth.getPairedDevices();
 
-        String correctDevice = pairedDevices.stream().filter(deviceName -> deviceName.contains("MiniGaia")).findFirst().orElse(null);
-
         try
         {
+            String correctDevice = pairedDevices.stream().filter(deviceName -> deviceName.contains("MiniGaia")).findFirst().orElse(null);
+
             if (bluetooth.connect(correctDevice)){
                 Toast.makeText(this, "miniGaia Conectado!", Toast.LENGTH_SHORT).show();
                 bluetooth.send(sensorData.toJson(false));
